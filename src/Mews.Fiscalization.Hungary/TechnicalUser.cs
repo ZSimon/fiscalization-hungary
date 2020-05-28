@@ -5,7 +5,7 @@ namespace Mews.Fiscalization.Hungary
         public TechnicalUser(string login, string password, string xmlSigningKey, string taxNumber)
         {
             Login = login;
-            PasswordHash = Sha512.GetStringHash(password);
+            PasswordHash = Sha512.GetHash(password);
             XmlSigningKey = xmlSigningKey;
             TaxNumber = taxNumber;
         }

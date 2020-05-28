@@ -39,7 +39,7 @@ namespace Mews.Fiscalization.Hungary
         private TRequest CreateRequest<TRequest>(string additionalSignatureData = null)
 			where TRequest : Request, new()
         {
-	        var requestId = Sha512.GetRandomRequestId();
+	        var requestId = RequestId.CreateRandom();
 	        var timestamp = DateTime.UtcNow;
 			return new TRequest
 	        {
