@@ -2,30 +2,30 @@ using System.Xml.Serialization;
 
 namespace Mews.Fiscalization.Hungary.Dto
 {
-    internal sealed class Software
+    public sealed class Software
     {
-        [XmlElement("id")]
+        [XmlElement("softwareId")]
         public string Id { get; set; }
 
-        [XmlElement("name")]
+        [XmlElement("softwareName")]
         public string Name { get; set; }
 
-        [XmlElement("operation")]
+        [XmlElement("softwareOperation")]
         public string Operation { get; set; }
 
-        [XmlElement("mainVersion")]
+        [XmlElement("softwareMainVersion")]
         public string MainVersion { get; set; }
 
-        [XmlElement("developerName")]
+        [XmlElement("softwareDevName")]
         public string DeveloperName { get; set; }
 
-        [XmlElement("developerContact")]
+        [XmlElement("softwareDevContact")]
         public string DeveloperContact { get; set; }
 
-        [XmlElement("developerCountry")]
+        [XmlElement("softwareDevCountryCode")]
         public string DeveloperCountry { get; set; }
 
-        [XmlElement("developerTaxNumber")]
+        [XmlElement("softwareDevTaxNumber")]
         public string DeveloperTaxNumber { get; set; }
     }
 }

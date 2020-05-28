@@ -1,8 +1,10 @@
+using System;
 using System.Xml.Serialization;
 
 namespace Mews.Fiscalization.Hungary.Dto
 {
-    internal abstract class Request
+    [Serializable]
+    public abstract class Request
     {
         [XmlElement("header")]
         public Header Header { get; set; }
@@ -12,11 +14,5 @@ namespace Mews.Fiscalization.Hungary.Dto
 
         [XmlElement("software")]
         public Software Software { get; set; }
-    }
-
-    internal sealed class QueryTaxpayerRequest : Request
-    {
-        [XmlElement("taxNumber")]
-        public string TaxNumber { get; set; }
     }
 }

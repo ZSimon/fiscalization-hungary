@@ -1,5 +1,4 @@
 using System;
-using System.Net;
 using System.Net.Http;
 using System.Text;
 using System.Threading.Tasks;
@@ -15,37 +14,46 @@ namespace Mews.Fiscalization.Hungary
 
         private static HttpClient HttpClient { get; }
 
+        private NavEnvironment Environment { get; }
+
         static NavClient()
         {
             HttpClient = new HttpClient();
         }
 
-        public NavClient(TechnicalUser technicalUser, SoftwareIdentification softwareIdentification)
+        public NavClient(TechnicalUser technicalUser, SoftwareIdentification softwareIdentification, NavEnvironment environment)
         {
             TechnicalUser = technicalUser;
             SoftwareIdentification = softwareIdentification;
+            Environment = environment;
         }
 
-        public async Task<bool> GetTaxpayerDataAsync(string taxNumber)
+        private async Task<HttpResponseMessage> SendRequestAsync<TRequest>(string endpoint, TRequest request)
+			where TRequest : class
         {
-	        var timestamp = DateTime.UtcNow;
+	        var content = new StringContent(XmlManipulator.Serialize(request), Encoding.UTF8, "application/xml");
+	        var url = new Uri(new Uri(ServiceInfo.BaseUrls[Environment], ServiceInfo.RelativeServiceUrl), endpoint);
+	        return await HttpClient.PostAsync(url, content);
+        }
+
+        private TRequest CreateRequest<TRequest>(string additionalSignatureData = null)
+			where TRequest : Request, new()
+        {
 	        var requestId = Sha512.GetRandomRequestId();
-	        var xmlSigningKey = "f8-a9d1-73227923aeb7281AVZXJHZM8";
-	        var signatureData = $"{requestId}{timestamp.ToString("yyyyMMddHHmmss")}{xmlSigningKey}";
-	        var requestSignature = Sha512.GetSha3Hash(signatureData);
-	        var query = new QueryTaxpayerRequest
+	        var timestamp = DateTime.UtcNow;
+			return new TRequest
 	        {
 		        Header = new Header
 		        {
 			        RequestId = requestId,
-			        TimeStamp = $"{timestamp.ToString("s")}Z"
+			        TimeStamp = timestamp.ToString("yyyy-MM-ddTHH:mm:ssZ")
 		        },
 		        User = new User
 		        {
 			        Login = TechnicalUser.Login,
 			        PasswordHash = TechnicalUser.PasswordHash,
 			        TaxNumber = TechnicalUser.TaxNumber,
-			        RequestSignature = requestSignature
+			        RequestSignature = GetRequestSignature(requestId, timestamp, additionalSignatureData)
 		        },
 		        Software = new Software
 		        {
@@ -57,42 +65,15 @@ namespace Mews.Fiscalization.Hungary
 			        DeveloperContact = SoftwareIdentification.DeveloperContact,
 			        DeveloperCountry = SoftwareIdentification.DeveloperCountry,
 			        DeveloperTaxNumber = SoftwareIdentification.DeveloperTaxNumber
-		        },
-		        TaxNumber = taxNumber
+		        }
 	        };
+        }
 
-	        var xml2 = XmlManipulator.Serialize(query).OuterXml;
-
-            var xml = $@"<?xml version=""1.0"" encoding=""UTF-8""?>
-				<QueryTaxpayerRequest
-					xmlns=""http://schemas.nav.gov.hu/OSA/2.0/api"">
-					<header>
-						<requestId>{requestId}</requestId>
-						<timestamp>{timestamp.ToString("s")}Z</timestamp>
-						<requestVersion>2.0</requestVersion>
-						<headerVersion>1.0</headerVersion>
-					</header>
-					<user>
-						<login>{TechnicalUser.Login}</login>
-						<passwordHash>{TechnicalUser.PasswordHash}</passwordHash>
-						<taxNumber>{TechnicalUser.TaxNumber}</taxNumber>
-						<requestSignature>{requestSignature}</requestSignature>
-					</user>
-					<software>
-						<softwareId>123456789123456789</softwareId>
-						<softwareName>string</softwareName>
-						<softwareOperation>LOCAL_SOFTWARE</softwareOperation>
-						<softwareMainVersion>string</softwareMainVersion>
-						<softwareDevName>string</softwareDevName>
-						<softwareDevContact>string</softwareDevContact>
-						<softwareDevCountryCode>HU</softwareDevCountryCode>
-						<softwareDevTaxNumber>string</softwareDevTaxNumber>
-					</software>
-					<taxNumber>{taxNumber}</taxNumber>
-				</QueryTaxpayerRequest>
-			";
-            var response = await HttpClient.PostAsync("https://api-test.onlineszamla.nav.gov.hu/invoiceService/v2/queryTaxpayer", new StringContent(xml, Encoding.UTF8, "application/xml"));
-            return response.StatusCode == HttpStatusCode.OK;
+        private string GetRequestSignature(string requestId, DateTime timestamp, string additionalSignatureData = null)
+        {
+	        var formattedTimestamp = timestamp.ToString("yyyyMMddHHmmss");
+	        var signatureData = $"{requestId}{formattedTimestamp}{TechnicalUser.XmlSigningKey}{additionalSignatureData}";
+	        return Sha512.GetSha3Hash(signatureData);
         }
     }
 }

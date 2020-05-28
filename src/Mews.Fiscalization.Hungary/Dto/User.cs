@@ -2,7 +2,7 @@ using System.Xml.Serialization;
 
 namespace Mews.Fiscalization.Hungary.Dto
 {
-    internal sealed class User
+    public sealed class User
     {
         [XmlElement("login")]
         public string Login { get; set; }
