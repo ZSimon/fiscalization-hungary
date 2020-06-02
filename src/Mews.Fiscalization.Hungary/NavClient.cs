@@ -1,8 +1,11 @@
 using System;
+using System.Collections.Generic;
 using System.Net.Http;
 using System.Text;
 using System.Threading.Tasks;
 using Mews.Fiscalization.Hungary.Dto;
+using Mews.Fiscalization.Hungary.Dto.Response;
+using Mews.Fiscalization.Hungary.Model;
 
 namespace Mews.Fiscalization.Hungary
 {
@@ -26,6 +29,22 @@ namespace Mews.Fiscalization.Hungary
             TechnicalUser = technicalUser;
             SoftwareIdentification = softwareIdentification;
             Environment = environment;
+        }
+
+        public async Task<ExchangeToken> GetExchangeTokenAsync()
+        {
+	        var request = CreateRequest<TokenExchangeRequest>();
+	        var httpResponse = await SendRequestAsync("tokenExchange", request);
+	        var responseXml = await httpResponse.Content.ReadAsStringAsync();
+	        var response = XmlManipulator.Deserialize<TokenExchangeResponse>(responseXml);
+	        var tokenBase64 = response.EncodedToken;
+	        var tokenData = Convert.FromBase64String(tokenBase64);
+	        var decryptedToken = Aes.Decrypt(TechnicalUser.EncryptionKey, tokenData);
+	        return new ExchangeToken(decryptedToken, response.ValidFrom, response.ValidTo);
+        }
+
+        public async Task SendInvoicesAsync(ExchangeToken exchangeToken, IEnumerable<Invoice> invoices)
+        {
         }
 
         private async Task<HttpResponseMessage> SendRequestAsync<TRequest>(string endpoint, TRequest request)
@@ -72,7 +91,7 @@ namespace Mews.Fiscalization.Hungary
         private string GetRequestSignature(string requestId, DateTime timestamp, string additionalSignatureData = null)
         {
 	        var formattedTimestamp = timestamp.ToString("yyyyMMddHHmmss");
-	        var signatureData = $"{requestId}{formattedTimestamp}{TechnicalUser.XmlSigningKey}{additionalSignatureData}";
+	        var signatureData = $"{requestId}{formattedTimestamp}{TechnicalUser.SigningKey}{additionalSignatureData}";
 	        return Sha512.GetSha3Hash(signatureData);
         }
     }

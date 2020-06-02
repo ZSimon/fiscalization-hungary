@@ -5,7 +5,7 @@ using System.Text;
 
 namespace Mews.Fiscalization.Hungary
 {
-    public static class Sha512
+    internal static class Sha512
     {
         public static string GetHash(string input)
         {

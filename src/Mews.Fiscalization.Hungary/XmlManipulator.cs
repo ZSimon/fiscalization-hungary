@@ -1,3 +1,4 @@
+using System.IO;
 using System.Xml;
 using System.Xml.Serialization;
 
@@ -16,6 +17,16 @@ namespace Mews.Fiscalization.Hungary
                 xmlSerializer.Serialize(writer, value);
             }
             return xmlDocument.OuterXml;
+        }
+
+        internal static T Deserialize<T>(string input)
+            where T : class, new()
+        {
+            using (var reader = new StringReader(input))
+            {
+                var xmlSerializer = new XmlSerializer(typeof(T), ServiceInfo.XmlNamespace);
+                return xmlSerializer.Deserialize(reader) as T;
+            }
         }
     }
 }

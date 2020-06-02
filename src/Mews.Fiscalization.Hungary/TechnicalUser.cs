@@ -2,11 +2,12 @@ namespace Mews.Fiscalization.Hungary
 {
     public sealed class TechnicalUser
     {
-        public TechnicalUser(string login, string password, string xmlSigningKey, string taxNumber)
+        public TechnicalUser(string login, string password, string signingKey, string encryptionKey, string taxNumber)
         {
             Login = login;
             PasswordHash = Sha512.GetHash(password);
-            XmlSigningKey = xmlSigningKey;
+            SigningKey = signingKey;
+            EncryptionKey = encryptionKey;
             TaxNumber = taxNumber;
         }
 
@@ -14,7 +15,9 @@ namespace Mews.Fiscalization.Hungary
 
         public string PasswordHash { get; }
 
-        public string XmlSigningKey { get; }
+        public string SigningKey { get; }
+
+        public string EncryptionKey { get; }
 
         public string TaxNumber { get; }
     }

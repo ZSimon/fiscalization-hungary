@@ -4,11 +4,11 @@ using System.Text;
 
 namespace Mews.Fiscalization.Hungary
 {
-    public static class RequestId
+    internal static class RequestId
     {
         public static string CreateRandom()
         {
-            var alphabet = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789";
+            var alphabet = "ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789";
             var guid = Guid.NewGuid();
             var bits = new BitArray(guid.ToByteArray());
             var chars = new StringBuilder();
