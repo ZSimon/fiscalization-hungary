@@ -1,9 +1,9 @@
-﻿namespace Mews.Fiscalization.Hungary.Dto.Response
+﻿namespace Mews.Fiscalization.Hungary.Models
 {
     public class ResponseResult<TResult>
         where TResult : class
     {
-        public ResponseResult(TResult successResult = null, GeneralErrorResponse errorResult = null)
+        public ResponseResult(TResult successResult = null, ErrorResult errorResult = null)
         {
             SuccessResult = successResult;
             ErrorResult = errorResult;
@@ -11,6 +11,6 @@
 
         public TResult SuccessResult { get; }
 
-        public GeneralErrorResponse ErrorResult { get; }
+        public ErrorResult ErrorResult { get; }
     }
 }
