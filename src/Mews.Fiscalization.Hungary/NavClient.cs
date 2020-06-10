@@ -3,6 +3,8 @@ using System.Net.Http;
 using System.Text;
 using System.Threading.Tasks;
 using Mews.Fiscalization.Hungary.Dto;
+using Mews.Fiscalization.Hungary.Dto.QueryTaxpayer;
+using Mews.Fiscalization.Hungary.Dto.Response;
 
 namespace Mews.Fiscalization.Hungary
 {
@@ -28,15 +30,35 @@ namespace Mews.Fiscalization.Hungary
             Environment = environment;
         }
 
-        private async Task<HttpResponseMessage> SendRequestAsync<TRequest>(string endpoint, TRequest request)
+		public async Task<ResponseResult<QueryTaxpayerResponse>> GetTaxPayerDataAsync(string taxNumber)
+		{
+			var request = CreateRequest<QueryTaxpayerRequest>();
+			request.TaxNumber = taxNumber;
+
+			return await SendRequestAsync<QueryTaxpayerRequest, QueryTaxpayerResponse>("queryTaxpayer", request);
+		}
+
+		private async Task<ResponseResult<TResult>> SendRequestAsync<TRequest, TResult>(string endpoint, TRequest request)
 			where TRequest : class
+			where TResult : class
         {
 	        var content = new StringContent(XmlManipulator.Serialize(request), Encoding.UTF8, "application/xml");
-	        var url = new Uri(new Uri(ServiceInfo.BaseUrls[Environment], ServiceInfo.RelativeServiceUrl), endpoint);
-	        return await HttpClient.PostAsync(url, content);
+			var uri = new Uri(ServiceInfo.BaseUrls[Environment], $"{ServiceInfo.RelativeServiceUrl}{endpoint}");
+	        var response = await HttpClient.PostAsync(uri, content);
+
+			if (response.IsSuccessStatusCode)
+            {
+				var successResult = XmlManipulator.Deserialize<TResult>(await response.Content.ReadAsStringAsync());
+				return new ResponseResult<TResult>(successResult: successResult);
+			}
+			else
+            {
+				var errorResult = XmlManipulator.Deserialize<GeneralErrorResponse>(await response.Content.ReadAsStringAsync());
+				return new ResponseResult<TResult>(errorResult: errorResult);
+			}
         }
 
-        private TRequest CreateRequest<TRequest>(string additionalSignatureData = null)
+		private TRequest CreateRequest<TRequest>(string additionalSignatureData = null)
 			where TRequest : Request, new()
         {
 	        var requestId = RequestId.CreateRandom();
@@ -53,8 +75,8 @@ namespace Mews.Fiscalization.Hungary
 			        Login = TechnicalUser.Login,
 			        PasswordHash = TechnicalUser.PasswordHash,
 			        TaxNumber = TechnicalUser.TaxNumber,
-			        RequestSignature = GetRequestSignature(requestId, timestamp, additionalSignatureData)
-		        },
+					RequestSignature = GetRequestSignature(requestId, timestamp, additionalSignatureData)
+				},
 		        Software = new Software
 		        {
 			        Id = SoftwareIdentification.Id,
@@ -72,8 +94,8 @@ namespace Mews.Fiscalization.Hungary
         private string GetRequestSignature(string requestId, DateTime timestamp, string additionalSignatureData = null)
         {
 	        var formattedTimestamp = timestamp.ToString("yyyyMMddHHmmss");
-	        var signatureData = $"{requestId}{formattedTimestamp}{TechnicalUser.XmlSigningKey}{additionalSignatureData}";
-	        return Sha512.GetSha3Hash(signatureData);
+			var signatureData = $"{requestId}{formattedTimestamp}{TechnicalUser.XmlSigningKey}{additionalSignatureData}";
+			return Sha512.GetSha3Hash(signatureData);
         }
     }
 }

@@ -1,6 +1,6 @@
 using System.Xml.Serialization;
 
-namespace Mews.Fiscalization.Hungary.Dto
+namespace Mews.Fiscalization.Hungary.Dto.QueryTaxpayer
 {
     public sealed class QueryTaxpayerRequest : Request
     {
