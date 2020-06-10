@@ -1,5 +1,6 @@
 using System;
 using System.Collections.Generic;
+using System.Linq;
 using System.Net.Http;
 using System.Text;
 using System.Threading.Tasks;
@@ -45,6 +46,19 @@ namespace Mews.Fiscalization.Hungary
 
         public async Task SendInvoicesAsync(ExchangeToken exchangeToken, IEnumerable<Invoice> invoices)
         {
+	        var request = CreateRequest<ManageInvoiceRequest>();
+	        request.ExchangeToken = exchangeToken.Value;
+	        request.Operations = new InvoiceOperations
+	        {
+		        CompressedContent = false,
+		        Items = invoices.Select(i => CreateInvoiceOperation(i)).ToList()
+	        };
+	        await SendRequestAsync("manageInvoice", request);
+        }
+
+        private InvoiceOperation CreateInvoiceOperation(Invoice invoice)
+        {
+	        throw new NotImplementedException();
         }
 
         private async Task<HttpResponseMessage> SendRequestAsync<TRequest>(string endpoint, TRequest request)
