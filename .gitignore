@@ -8,4 +8,4 @@
 *.bak
 *.ncb
 src/packages
-/src/Mews.Fiscalization.Hungary.Tests/Class1.cs
+/src/Mews.Fiscalization.Hungary.Tests/Tests.cs
