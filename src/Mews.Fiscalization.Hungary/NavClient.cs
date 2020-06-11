@@ -1,5 +1,6 @@
 ﻿using Mews.Fiscalization.Hungary.Models;
 using Mews.Fiscalization.Hungary.Models.TaxPayer;
+using Mews.Fiscalization.Hungary.Utils;
 using System;
 using System.Net.Http;
 using System.Text;
@@ -27,6 +28,30 @@ namespace Mews.Fiscalization.Hungary
             TechnicalUser = technicalUser;
             SoftwareIdentification = softwareIdentification;
             Environment = environment;
+        }
+
+        public async Task<ResponseResult<ExchangeToken>> GetExchangeTokenAsync()
+        {
+            var request = CreateRequest<Dto.TokenExchangeRequest>();
+            var response = await SendRequestAsync("tokenExchange", request);
+
+            if (response.IsSuccessStatusCode)
+            {
+                var successResult = XmlManipulator.Deserialize<Dto.TokenExchangeResponse>(await response.Content.ReadAsStringAsync());
+                var tokenBase64 = successResult.EncodedExchangeToken;
+                var tokenData = Convert.FromBase64String(tokenBase64);
+                var decryptedToken = Aes.Decrypt(TechnicalUser.EncryptionKey, tokenData);
+                return new ResponseResult<ExchangeToken>(successResult: new ExchangeToken(
+                    value: decryptedToken,
+                    validFrom: successResult.TokenValidityFrom,
+                    validTo: successResult.TokenValidityTo
+                ));
+            }
+            else
+            {
+                var errorResult = XmlManipulator.Deserialize<Dto.GeneralErrorResponse>(await response.Content.ReadAsStringAsync());
+                return new ResponseResult<ExchangeToken>(errorResult: ErrorResult.Map(errorResult));
+            }
         }
 
         public async Task<ResponseResult<TaxPayerData>> GetTaxPayerDataAsync(string taxNumber)

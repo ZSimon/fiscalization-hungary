@@ -4,7 +4,7 @@ namespace Mews.Fiscalization.Hungary.Models.TaxPayer
 {
     public sealed class TaxPayerData
     {
-        public TaxPayerData(string id, string name, Address address, string vatCode, bool isValid, DateTime? infoDate = null)
+        internal TaxPayerData(string id, string name, Address address, string vatCode, bool isValid, DateTime? infoDate = null)
         {
             Id = id;
             Name = name;

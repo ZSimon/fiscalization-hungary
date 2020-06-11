@@ -4,7 +4,7 @@ namespace Mews.Fiscalization.Hungary.Models
 {
     public class Address
     {
-        public Address(
+        internal Address(
             string countryCode,
             string postalCode,
             string city,
