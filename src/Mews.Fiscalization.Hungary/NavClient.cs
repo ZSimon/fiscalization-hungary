@@ -30,7 +30,7 @@ namespace Mews.Fiscalization.Hungary
             Environment = environment;
         }
 
-        public async Task<ResponseResult<TokenExchange>> GetExchangeTokenAsync()
+        public async Task<ResponseResult<ExchangeToken>> GetExchangeTokenAsync()
         {
             var request = CreateRequest<Dto.TokenExchangeRequest>();
             var response = await SendRequestAsync("tokenExchange", request);
@@ -41,7 +41,7 @@ namespace Mews.Fiscalization.Hungary
                 var tokenBase64 = successResult.EncodedExchangeToken;
                 var tokenData = Convert.FromBase64String(tokenBase64);
                 var decryptedToken = Aes.Decrypt(TechnicalUser.EncryptionKey, tokenData);
-                return new ResponseResult<TokenExchange>(successResult: new TokenExchange(
+                return new ResponseResult<ExchangeToken>(successResult: new ExchangeToken(
                     value: decryptedToken,
                     validFrom: successResult.TokenValidityFrom,
                     validTo: successResult.TokenValidityTo
@@ -50,7 +50,7 @@ namespace Mews.Fiscalization.Hungary
             else
             {
                 var errorResult = XmlManipulator.Deserialize<Dto.GeneralErrorResponse>(await response.Content.ReadAsStringAsync());
-                return new ResponseResult<TokenExchange>(errorResult: ErrorResult.Map(errorResult));
+                return new ResponseResult<ExchangeToken>(errorResult: ErrorResult.Map(errorResult));
             }
         }
 

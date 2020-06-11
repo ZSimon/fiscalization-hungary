@@ -2,9 +2,9 @@
 
 namespace Mews.Fiscalization.Hungary.Models
 {
-    public sealed class TokenExchange
+    public sealed class ExchangeToken
     {
-        internal TokenExchange(string value, DateTime validFrom, DateTime validTo)
+        internal ExchangeToken(string value, DateTime validFrom, DateTime validTo)
         {
             Value = value;
             ValidFrom = validFrom;
@@ -17,9 +17,9 @@ namespace Mews.Fiscalization.Hungary.Models
 
         public DateTime ValidTo { get; }
 
-        internal static TokenExchange Map(Dto.TokenExchangeResponse response)
+        internal static ExchangeToken Map(Dto.TokenExchangeResponse response)
         {
-            return new TokenExchange(
+            return new ExchangeToken(
                 value: response.EncodedExchangeToken,
                 validFrom: response.TokenValidityFrom,
                 validTo: response.TokenValidityTo
