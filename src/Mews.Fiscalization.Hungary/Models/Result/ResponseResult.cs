@@ -3,7 +3,7 @@
     public class ResponseResult<TResult>
         where TResult : class
     {
-        public ResponseResult(TResult successResult = null, ErrorResult errorResult = null)
+        internal ResponseResult(TResult successResult = null, ErrorResult errorResult = null)
         {
             SuccessResult = successResult;
             ErrorResult = errorResult;
