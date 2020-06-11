@@ -29,6 +29,23 @@ namespace Mews.Fiscalization.Hungary
             Environment = environment;
         }
 
+        public async Task<ResponseResult<TokenExchangeData>> GetTokenExchangeAsync()
+        {
+            var request = CreateRequest<Dto.TokenExchangeRequest>();
+            var response = await SendRequestAsync("tokenExchange", request);
+
+            if (response.IsSuccessStatusCode)
+            {
+                var successResult = XmlManipulator.Deserialize<Dto.TokenExchangeResponse>(await response.Content.ReadAsStringAsync());
+                return new ResponseResult<TokenExchangeData>(successResult: TokenExchangeData.Map(successResult));
+            }
+            else
+            {
+                var errorResult = XmlManipulator.Deserialize<Dto.GeneralErrorResponse>(await response.Content.ReadAsStringAsync());
+                return new ResponseResult<TokenExchangeData>(errorResult: ErrorResult.Map(errorResult));
+            }
+        }
+
         public async Task<ResponseResult<TaxPayerData>> GetTaxPayerDataAsync(string taxNumber)
         {
             var request = CreateRequest<Dto.QueryTaxpayerRequest>();
