@@ -153,7 +153,7 @@ namespace Mews.Fiscalization.Hungary
                 lineDescription = i.Description,
                 quantity = i.Quantity,
                 unitOfMeasureOwn = i.MeasurementUnit.ToString(),
-                unitPrice = i.UnitAmount,
+                unitPrice = i.UnitAmount.Net,
                 quantitySpecified = true,
                 unitOfMeasureSpecified = true,
                 unitPriceSpecified = true,

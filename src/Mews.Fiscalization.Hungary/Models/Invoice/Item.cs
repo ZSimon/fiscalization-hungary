@@ -13,7 +13,7 @@ namespace Mews.Fiscalization.Hungary.Models
             string description,
             string productCode,
             int quantity,
-            decimal unitAmount,
+            Amount unitAmount,
             bool isDeposit = false)
         {
             ProductCodeCategory = productCodeCategory;
@@ -44,7 +44,7 @@ namespace Mews.Fiscalization.Hungary.Models
 
         public int Quantity { get; }
 
-        public decimal UnitAmount { get; }
+        public Amount UnitAmount { get; }
 
         public bool IsDeposit { get; }
     }
