@@ -39,6 +39,16 @@ namespace Mews.Fiscalization.Hungary
             );
         }
 
+        public async Task<ResponseResult<InvoiceStatus>> GetInvoiceStatusAsync(string invoiceId)
+        {
+            var request = RequestCreator.CreateQueryTransactionStatusRequest(TechnicalUser, SoftwareIdentification, invoiceId);
+            return await Client.ProcessRequestAsync<Dto.QueryTransactionStatusRequest, Dto.QueryTransactionStatusResponse, InvoiceStatus>(
+                endpoint: "queryTransactionStatus",
+                request: request,
+                successFunc: response => ModelMapper.MapInvoiceStatus(response)
+            );
+        }
+
         public async Task<ResponseResult<TaxPayerData>> GetTaxPayerDataAsync(string taxNumber)
         {
             var request = RequestCreator.CreateQueryTaxpayerRequest(TechnicalUser, SoftwareIdentification, taxNumber);

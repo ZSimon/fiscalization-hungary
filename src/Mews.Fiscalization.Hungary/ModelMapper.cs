@@ -1,6 +1,7 @@
 ﻿using Mews.Fiscalization.Hungary.Models;
 using Mews.Fiscalization.Hungary.Models.TaxPayer;
 using Mews.Fiscalization.Hungary.Utils;
+using System.Linq;
 
 namespace Mews.Fiscalization.Hungary
 {
@@ -25,6 +26,19 @@ namespace Mews.Fiscalization.Hungary
             else
             {
                 return new ResponseResult<TaxPayerData>(errorResult: new ErrorResult("Invalid tax payer.", ResultErrorCode.InvalidTaxPayer));
+            }
+        }
+
+        internal static ResponseResult<InvoiceStatus> MapInvoiceStatus(Dto.QueryTransactionStatusResponse response)
+        {
+            var result = response.processingResults;
+            if (result == null || result.processingResult.First() == null)
+            {
+                return new ResponseResult<InvoiceStatus>(errorResult: new ErrorResult("Invalid invoice id.", ResultErrorCode.InvalidInvoiceId));
+            }
+            else
+            {
+                return new ResponseResult<InvoiceStatus>(successResult: InvoiceStatus.Map(response));
             }
         }
 

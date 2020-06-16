@@ -17,6 +17,7 @@ namespace Mews.Fiscalization.Hungary.Models
             DateTime deliveryDate,
             DateTime paymentDate,
             string currencyCode,
+            decimal exchangeRate,
             bool isSelfBilling = false,
             bool isCashAccounting = false)
         {
@@ -30,6 +31,7 @@ namespace Mews.Fiscalization.Hungary.Models
             DeliveryDate = deliveryDate;
             PaymentDate = paymentDate;
             CurrencyCode = currencyCode;
+            ExchangeRate = exchangeRate;
             IsSelfBilling = isSelfBilling;
             IsCashAccounting = isCashAccounting;
             TaxSummary = items.GroupBy(i => i.Amounts.TaxRatePercentage).Select(g => new TaxSummaryItem(
@@ -60,6 +62,8 @@ namespace Mews.Fiscalization.Hungary.Models
         public DateTime PaymentDate { get; }
 
         public string CurrencyCode { get; }
+
+        public decimal ExchangeRate { get; }
 
         public bool IsSelfBilling { get; }
 
