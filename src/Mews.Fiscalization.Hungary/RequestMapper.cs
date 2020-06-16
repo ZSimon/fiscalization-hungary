@@ -8,10 +8,8 @@ namespace Mews.Fiscalization.Hungary
     {
         internal static Dto.InvoiceData MapInvoice(Invoice invoice)
         {
-            var companyInfo = invoice.SupplierInfo;
+            var supplierInfo = invoice.SupplierInfo;
             var customerInfo = invoice.CustomerInfo;
-            var customerAddress = invoice.CustomerInfo.Address;
-            var companyAddress = companyInfo.Address;
             return new Dto.InvoiceData
             {
                 invoiceIssueDate = invoice.IssueDate,
@@ -37,82 +35,27 @@ namespace Mews.Fiscalization.Hungary
                                 },
                                 supplierInfo = new Dto.SupplierInfoType
                                 {
-                                    supplierName = companyInfo.Name,
-                                    supplierAddress = new Dto.AddressType
-                                    {
-                                        Item = new Dto.SimpleAddressType
-                                        {
-                                            additionalAddressDetail = companyAddress.AddtionalAddressDetail,
-                                            city = companyAddress.City,
-                                            countryCode = companyAddress.CountryCode,
-                                            postalCode = companyAddress.PostalCode,
-                                            region = companyAddress.Region
-                                        }
-                                    },
-                                    supplierTaxNumber = new Dto.TaxNumberType
-                                    {
-                                        taxpayerId = companyInfo.TaxpayerId,
-                                        vatCode = companyInfo.VatCode
-                                    }
+                                    supplierName = supplierInfo.Name,
+                                    supplierAddress = MapAddress(supplierInfo.Address),
+                                    supplierTaxNumber = MapTaxNumber(supplierInfo)
                                 },
                                 customerInfo = new Dto.CustomerInfoType
                                 {
-                                    customerAddress = new Dto.AddressType
-                                    {
-                                        Item = new Dto.SimpleAddressType
-                                        {
-                                            additionalAddressDetail = customerAddress.AddtionalAddressDetail,
-                                            city = customerAddress.City,
-                                            countryCode = customerAddress.CountryCode,
-                                            postalCode = customerAddress.PostalCode,
-                                            region = customerAddress.Region
-                                        }
-                                    },
                                     customerName = customerInfo.Name,
-                                    customerTaxNumber = new Dto.TaxNumberType
-                                    {
-                                        taxpayerId = customerInfo.TaxpayerId,
-                                        vatCode = customerInfo.VatCode
-                                    }
+                                    customerAddress = MapAddress(customerInfo.Address),
+                                    customerTaxNumber = MapTaxNumber(customerInfo)
                                 },
                             },
                             invoiceSummary = new Dto.SummaryType
                             {
                                 summaryGrossData = new Dto.SummaryGrossDataType
                                 {
-                                    invoiceGrossAmount = invoice.GrossAmount,
-                                    invoiceGrossAmountHUF = invoice.GrossAmountHUF
+                                    invoiceGrossAmount = invoice.Amount.Gross,
+                                    invoiceGrossAmountHUF = invoice.AmountHUF.Gross
                                 },
                                 Items = new Dto.SummaryNormalType[]
                                 {
-                                    new Dto.SummaryNormalType
-                                    {
-                                        invoiceNetAmount = invoice.NetAmount,
-                                        invoiceNetAmountHUF = invoice.NetAmountHUF,
-                                        invoiceVatAmount = invoice.VatAmount,
-                                        invoiceVatAmountHUF = invoice.VatAmountHUF,
-                                        summaryByVatRate = new Dto.SummaryByVatRateType[]
-                                        {
-                                            new Dto.SummaryByVatRateType
-                                            {
-                                                vatRate = new Dto.VatRateType
-                                                {
-                                                    Item = invoice.VatPercentage,
-                                                    ItemElementName = Dto.ItemChoiceType1.vatPercentage
-                                                },
-                                                vatRateNetData = new Dto.VatRateNetDataType
-                                                {
-                                                    vatRateNetAmount = invoice.VatRateNetAmount,
-                                                    vatRateNetAmountHUF = invoice.VatRateNetAmountHUF
-                                                },
-                                                vatRateVatData = new Dto.VatRateVatDataType
-                                                {
-                                                    vatRateVatAmount = invoice.VatRateVatAmount,
-                                                    vatRateVatAmountHUF = invoice.VatRateVatAmountHUF
-                                                }
-                                            }
-                                        }
-                                    }
+                                    MapTaxSummary(invoice)
                                 }
                             }
                         }
@@ -121,64 +64,114 @@ namespace Mews.Fiscalization.Hungary
             };
         }
 
+        internal static Dto.SummaryNormalType MapTaxSummary(Invoice invoice)
+        {
+            return new Dto.SummaryNormalType
+            {
+                invoiceNetAmount = invoice.Amount.Net,
+                invoiceNetAmountHUF = invoice.AmountHUF.Net,
+                invoiceVatAmount = invoice.Amount.Tax,
+                invoiceVatAmountHUF = invoice.AmountHUF.Tax,
+                summaryByVatRate = invoice.TaxSummary.Select(s => MapSummaryByVatRate(s)).ToArray()
+            };
+        }
+
+        internal static Dto.SummaryByVatRateType MapSummaryByVatRate(TaxSummaryItem taxSummary)
+        {
+            return new Dto.SummaryByVatRateType
+            {
+                vatRate = new Dto.VatRateType
+                {
+                    Item = taxSummary.TaxRatePercentage,
+                    ItemElementName = Dto.ItemChoiceType1.vatPercentage
+                },
+                vatRateNetData = new Dto.VatRateNetDataType
+                {
+                    vatRateNetAmount = taxSummary.Amount.Net,
+                    vatRateNetAmountHUF = taxSummary.AmountHUF.Net
+                },
+                vatRateVatData = new Dto.VatRateVatDataType
+                {
+                    vatRateVatAmount = taxSummary.Amount.Tax,
+                    vatRateVatAmountHUF = taxSummary.AmountHUF.Tax
+                }
+            };
+        }
+
+        internal static Dto.TaxNumberType MapTaxNumber(Info info)
+        {
+            return new Dto.TaxNumberType
+            {
+                taxpayerId = info.TaxpayerId,
+                vatCode = info.VatCode
+            };
+        }
+
+        internal static Dto.AddressType MapAddress(SimpleAddress address)
+        {
+            return new Dto.AddressType
+            {
+                Item = new Dto.SimpleAddressType
+                {
+                    additionalAddressDetail = address.AddtionalAddressDetail,
+                    city = address.City,
+                    countryCode = address.CountryCode,
+                    postalCode = address.PostalCode,
+                    region = address.Region
+                }
+            };
+        }
+
+
+        internal static Dto.LineAmountsNormalType MapLineAmounts(Item item)
+        {
+            return new Dto.LineAmountsNormalType
+            {
+                lineGrossAmountData = new Dto.LineGrossAmountDataType
+                {
+                    lineGrossAmountNormal = item.Amounts.Amount.Gross,
+                    lineGrossAmountNormalHUF = item.Amounts.AmountHUF.Gross
+                },
+                lineNetAmountData = new Dto.LineNetAmountDataType
+                {
+                    lineNetAmount = item.Amounts.Amount.Net,
+                    lineNetAmountHUF = item.Amounts.AmountHUF.Net
+                },
+                lineVatRate = new Dto.VatRateType
+                {
+                    Item = item.Amounts.TaxRatePercentage,
+                    ItemElementName = Dto.ItemChoiceType1.vatPercentage
+                }
+            };
+        }
+
         internal static IEnumerable<Dto.LineType> MapItems(IEnumerable<Item> items)
         {
-            return items.Select(i =>
+            return items.Select((i, index) => new Dto.LineType
             {
-                var line = new Dto.LineType
+                lineNumber = (index + 1).ToString(),
+                lineDescription = i.Description,
+                quantity = i.Quantity,
+                unitOfMeasureOwn = i.MeasurementUnit.ToString(),
+                unitPrice = i.UnitAmount.Net,
+                quantitySpecified = true,
+                unitOfMeasureSpecified = true,
+                unitPriceSpecified = true,
+                depositIndicator = i.IsDeposit,
+                Item = MapLineAmounts(i),
+                aggregateInvoiceLineData = new Dto.AggregateInvoiceLineDataType
                 {
-                    lineNumber = i.Number,
-                    lineDescription = i.Description,
-                    quantity = i.Quantity,
-                    unitOfMeasureOwn = "Nights",
-                    unitPrice = i.NetUnitPrice,
-                    unitOfMeasureSpecified = true,
-                    unitPriceSpecified = true,
-                    depositIndicator = i.IsDeposit,
-                    aggregateInvoiceLineData = new Dto.AggregateInvoiceLineDataType
+                    lineDeliveryDate = i.ConsumptionDate
+                },
+                productCodes = new Dto.ProductCodeType[]
+                {
+                    new Dto.ProductCodeType
                     {
-                        lineDeliveryDate = i.ConsumptionDate,
-                        lineExchangeRateSpecified = false
-                    },
-                    Item = new Dto.LineAmountsNormalType
-                    {
-                        lineGrossAmountData = new Dto.LineGrossAmountDataType
-                        {
-                            lineGrossAmountNormal = i.GrossAmount,
-                            lineGrossAmountNormalHUF = i.GrossAmountHUF
-                        },
-                        lineNetAmountData = new Dto.LineNetAmountDataType
-                        {
-                            lineNetAmount = i.NetAmount,
-                            lineNetAmountHUF = i.NetAmountHUF
-                        },
-                        lineVatRate = new Dto.VatRateType
-                        {
-                            Item = i.VatPercentage,
-                            ItemElementName = Dto.ItemChoiceType1.vatPercentage
-                        }
-                    },
-                    productCodes = new Dto.ProductCodeType[]
-                    {
-                        new Dto.ProductCodeType
-                        {
-                            productCodeCategory = (Dto.ProductCodeCategoryType)i.ProductCodeCategory,
-                            ItemElementName = (Dto.ItemChoiceType)i.ProductCodeChoiceType,
-                            Item = i.ProductCode
-                        }
+                        productCodeCategory = (Dto.ProductCodeCategoryType)i.ProductCodeCategory,
+                        ItemElementName = (Dto.ItemChoiceType)i.ProductCodeChoiceType,
+                        Item = i.ProductCode
                     }
-                };
-
-                if (i.DiscountDescription != null)
-                {
-                    line.lineDiscountData.discountDescription = i.DiscountDescription;
                 }
-                if (i.DiscountValue.HasValue)
-                {
-                    line.lineDiscountData.discountValue = i.DiscountValue.Value;
-                }
-
-                return line;
             });
         }
     }
