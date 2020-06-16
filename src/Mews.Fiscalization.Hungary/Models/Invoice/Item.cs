@@ -9,35 +9,25 @@ namespace Mews.Fiscalization.Hungary.Models
             ProductCodeCategory productCodeCategory,
             ItemChoiceType productCodeChoiceType,
             DateTime consumptionDate,
+            TaxSummaryItem taxSummary,
+            MeasurementUnit measurementUnit,
             string description,
             string productCode,
-            decimal quantity,
-            decimal netUnitPrice,
-            decimal grossAmount,
-            decimal grossAmountHUF,
-            decimal netAmount,
-            decimal netAmountHUF,
-            decimal vatPercentage,
-            bool isDeposit = false,
-            string discountDescription = null,
-            decimal? discountValue = null)
+            int quantity,
+            decimal unitAmount,
+            bool isDeposit = false)
         {
             Number = number;
             ProductCodeCategory = productCodeCategory;
             ProductCodeChoiceType = productCodeChoiceType;
             ConsumptionDate = consumptionDate;
+            TaxSummary = taxSummary;
+            MeasurementUnit = measurementUnit;
             Description = description;
             ProductCode = productCode;
             Quantity = quantity;
-            NetUnitPrice = netUnitPrice;
-            GrossAmount = grossAmount;
-            GrossAmountHUF = grossAmountHUF;
-            NetAmount = netAmount;
-            NetAmountHUF = netAmountHUF;
-            VatPercentage = vatPercentage;
+            UnitAmount = unitAmount;
             IsDeposit = isDeposit;
-            DiscountDescription = discountDescription;
-            DiscountValue = discountValue;
         }
 
         public string Number { get; }
@@ -47,29 +37,19 @@ namespace Mews.Fiscalization.Hungary.Models
         public ItemChoiceType ProductCodeChoiceType { get; }
 
         public DateTime ConsumptionDate { get; }
+        
+        public TaxSummaryItem TaxSummary { get; }
+
+        public MeasurementUnit MeasurementUnit { get; }
 
         public string Description { get; }
 
         public string ProductCode { get; }
 
-        public decimal Quantity { get; }
+        public int Quantity { get; }
 
-        public decimal NetUnitPrice { get; }
-
-        public decimal GrossAmount { get; }
-
-        public decimal GrossAmountHUF { get; }
-
-        public decimal NetAmount { get; }
-
-        public decimal NetAmountHUF { get; }
-
-        public decimal VatPercentage { get; }
+        public decimal UnitAmount { get; }
 
         public bool IsDeposit { get; }
-
-        public string DiscountDescription { get; }
-
-        public decimal? DiscountValue { get; }
     }
 }
