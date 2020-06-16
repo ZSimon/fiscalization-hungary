@@ -1,6 +1,7 @@
 ﻿using Mews.Fiscalization.Hungary.Models;
 using Mews.Fiscalization.Hungary.Models.TaxPayer;
 using Mews.Fiscalization.Hungary.Utils;
+using System;
 using System.Collections.Generic;
 using System.Net.Http;
 using System.Threading.Tasks;
@@ -41,6 +42,11 @@ namespace Mews.Fiscalization.Hungary
 
         public async Task<ResponseResult<InvoiceStatus>> GetInvoiceStatusAsync(string invoiceId)
         {
+            if (string.IsNullOrEmpty(invoiceId))
+            {
+                throw new ArgumentException("InvoiceId must be specified.");
+            }
+
             var request = RequestCreator.CreateQueryTransactionStatusRequest(TechnicalUser, SoftwareIdentification, invoiceId);
             return await Client.ProcessRequestAsync<Dto.QueryTransactionStatusRequest, Dto.QueryTransactionStatusResponse, InvoiceStatus>(
                 endpoint: "queryTransactionStatus",
@@ -51,6 +57,11 @@ namespace Mews.Fiscalization.Hungary
 
         public async Task<ResponseResult<TaxPayerData>> GetTaxPayerDataAsync(string taxNumber)
         {
+            if (string.IsNullOrEmpty(taxNumber))
+            {
+                throw new ArgumentException("taxNumber must be specified.");
+            }
+
             var request = RequestCreator.CreateQueryTaxpayerRequest(TechnicalUser, SoftwareIdentification, taxNumber);
             return await Client.ProcessRequestAsync<Dto.QueryTaxpayerRequest, Dto.QueryTaxpayerResponse, TaxPayerData>(
                 endpoint: "queryTaxpayer",
