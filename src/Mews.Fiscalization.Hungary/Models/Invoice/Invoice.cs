@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Linq;
 
 namespace Mews.Fiscalization.Hungary.Models
 {
@@ -11,7 +12,6 @@ namespace Mews.Fiscalization.Hungary.Models
             Info supplierInfo,
             Info customerInfo,
             IEnumerable<Item> items,
-            TaxSummaryItem taxSummary,
             Amount amount,
             Amount amountHUF,
             DateTime deliveryDate,
@@ -25,7 +25,6 @@ namespace Mews.Fiscalization.Hungary.Models
             SupplierInfo = supplierInfo;
             CustomerInfo = customerInfo;
             Items = items;
-            TaxSummary = taxSummary;
             Amount = amount;
             AmountHUF = amountHUF;
             DeliveryDate = deliveryDate;
@@ -33,6 +32,11 @@ namespace Mews.Fiscalization.Hungary.Models
             CurrencyCode = currencyCode;
             IsSelfBilling = isSelfBilling;
             IsCashAccounting = isCashAccounting;
+            TaxSummary = items.GroupBy(i => i.Amounts.TaxRatePercentage).Select(g => new TaxSummaryItem(
+                taxRatePercentage: g.Key,
+                amount: Amount.Sum(g.Select(i => i.Amounts.Amount)),
+                amountHUF: Amount.Sum(g.Select(i => i.Amounts.AmountHUF))
+            ));
         }
 
         public string Number { get; }
@@ -45,7 +49,7 @@ namespace Mews.Fiscalization.Hungary.Models
 
         public IEnumerable<Item> Items { get; }
 
-        public TaxSummaryItem TaxSummary { get; }
+        public IEnumerable<TaxSummaryItem> TaxSummary { get; }
 
         public Amount Amount { get; }
 

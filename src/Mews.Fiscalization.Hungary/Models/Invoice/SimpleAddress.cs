@@ -12,9 +12,13 @@
         }
 
         public string City { get; }
+
         public string CountryCode { get; }
+
         public string PostalCode { get; }
+
         public string Region { get; }
+
         public string AddtionalAddressDetail { get; }
     }
 }

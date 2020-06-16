@@ -5,11 +5,10 @@ namespace Mews.Fiscalization.Hungary.Models
     public class Item
     {
         public Item(
-            string number,
             ProductCodeCategory productCodeCategory,
             ItemChoiceType productCodeChoiceType,
             DateTime consumptionDate,
-            TaxSummaryItem taxSummary,
+            ItemAmounts amounts,
             MeasurementUnit measurementUnit,
             string description,
             string productCode,
@@ -17,11 +16,10 @@ namespace Mews.Fiscalization.Hungary.Models
             decimal unitAmount,
             bool isDeposit = false)
         {
-            Number = number;
             ProductCodeCategory = productCodeCategory;
             ProductCodeChoiceType = productCodeChoiceType;
             ConsumptionDate = consumptionDate;
-            TaxSummary = taxSummary;
+            Amounts = amounts;
             MeasurementUnit = measurementUnit;
             Description = description;
             ProductCode = productCode;
@@ -30,15 +28,13 @@ namespace Mews.Fiscalization.Hungary.Models
             IsDeposit = isDeposit;
         }
 
-        public string Number { get; }
-
         public ProductCodeCategory ProductCodeCategory { get; }
 
         public ItemChoiceType ProductCodeChoiceType { get; }
 
         public DateTime ConsumptionDate { get; }
         
-        public TaxSummaryItem TaxSummary { get; }
+        public ItemAmounts Amounts { get; }
 
         public MeasurementUnit MeasurementUnit { get; }
 
