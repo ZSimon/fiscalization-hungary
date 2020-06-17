@@ -1,11 +1,13 @@
 ﻿namespace Mews.Fiscalization.Hungary.Models
 {
-    public class LimitedString1to255 : LimitedString
+    public sealed class CurrencyCode
     {
-        public LimitedString1to255(string value)
-            : base(value, 1, 255)
+        public CurrencyCode(string value) // [A-Z]{3} and NOT NULL
         {
+            Value = value;
         }
+
+        public string Value { get; }
 
         public static bool IsValid(string value)
         {
