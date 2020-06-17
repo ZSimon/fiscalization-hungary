@@ -8,6 +8,8 @@ namespace Mews.Fiscalization.Hungary
     {
         internal static Dto.InvoiceData MapInvoice(Invoice invoice)
         {
+            var invoiceAmount = Amount.Sum(invoice.Items.Select(i => i.Amounts.Amount));
+            var invoiceAmountHUF = Amount.Sum(invoice.Items.Select(i => i.Amounts.AmountHUF));
             var supplierInfo = invoice.SupplierInfo;
             var customerInfo = invoice.CustomerInfo;
             return new Dto.InvoiceData
@@ -25,7 +27,6 @@ namespace Mews.Fiscalization.Hungary
                             {
                                 invoiceDetail = new Dto.InvoiceDetailType
                                 {
-                                    exchangeRate = invoice.ExchangeRate.Value,
                                     currencyCode = invoice.CurrencyCode.Value,
                                     invoiceAppearance = Dto.InvoiceAppearanceType.ELECTRONIC,
                                     invoiceCategory = Dto.InvoiceCategoryType.AGGREGATE,
@@ -51,12 +52,12 @@ namespace Mews.Fiscalization.Hungary
                             {
                                 summaryGrossData = new Dto.SummaryGrossDataType
                                 {
-                                    invoiceGrossAmount = invoice.Amount.Gross.Value,
-                                    invoiceGrossAmountHUF = invoice.AmountHUF.Gross.Value
+                                    invoiceGrossAmount = invoiceAmount.Gross.Value,
+                                    invoiceGrossAmountHUF = invoiceAmountHUF.Gross.Value
                                 },
                                 Items = new Dto.SummaryNormalType[]
                                 {
-                                    MapTaxSummary(invoice)
+                                    MapTaxSummary(invoice, invoiceAmount, invoiceAmountHUF)
                                 }
                             }
                         }
@@ -65,14 +66,14 @@ namespace Mews.Fiscalization.Hungary
             };
         }
 
-        internal static Dto.SummaryNormalType MapTaxSummary(Invoice invoice)
+        internal static Dto.SummaryNormalType MapTaxSummary(Invoice invoice, Amount amount, Amount amountHUF)
         {
             return new Dto.SummaryNormalType
             {
-                invoiceNetAmount = invoice.Amount.Net.Value,
-                invoiceNetAmountHUF = invoice.AmountHUF.Net.Value,
-                invoiceVatAmount = invoice.Amount.Tax.Value,
-                invoiceVatAmountHUF = invoice.AmountHUF.Tax.Value,
+                invoiceNetAmount = amount.Net.Value,
+                invoiceNetAmountHUF = amountHUF.Net.Value,
+                invoiceVatAmount = amount.Tax.Value,
+                invoiceVatAmountHUF = amountHUF.Tax.Value,
                 summaryByVatRate = invoice.TaxSummary.Select(s => MapSummaryByVatRate(s)).ToArray()
             };
         }
@@ -162,6 +163,8 @@ namespace Mews.Fiscalization.Hungary
                 Item = MapLineAmounts(i),
                 aggregateInvoiceLineData = new Dto.AggregateInvoiceLineDataType
                 {
+                    lineExchangeRateSpecified = true,
+                    lineExchangeRate = i.ExchangeRate.Value,
                     lineDeliveryDate = i.ConsumptionDate
                 }
             });
