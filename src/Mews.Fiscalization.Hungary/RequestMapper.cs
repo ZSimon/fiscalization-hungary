@@ -163,6 +163,8 @@ namespace Mews.Fiscalization.Hungary
                 Item = MapLineAmounts(i),
                 aggregateInvoiceLineData = new Dto.AggregateInvoiceLineDataType
                 {
+                    lineExchangeRateSpecified = true,
+                    lineExchangeRate = i.ExchangeRate.Value,
                     lineDeliveryDate = i.ConsumptionDate
                 }
             });

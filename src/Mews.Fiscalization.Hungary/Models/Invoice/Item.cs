@@ -12,6 +12,7 @@ namespace Mews.Fiscalization.Hungary.Models
             Description description,
             int quantity,
             Amount unitAmount,
+            ExchangeRate exchangeRate,
             bool isDeposit = false)
         {
             ConsumptionDate = consumptionDate;
@@ -20,6 +21,7 @@ namespace Mews.Fiscalization.Hungary.Models
             Description = Check.NotNull(description, nameof(description));
             Quantity = quantity;
             UnitAmount = Check.NotNull(unitAmount, nameof(unitAmount));
+            ExchangeRate = Check.NotNull(exchangeRate, nameof(exchangeRate));
             IsDeposit = isDeposit;
         }
 
@@ -34,6 +36,8 @@ namespace Mews.Fiscalization.Hungary.Models
         public int Quantity { get; }
 
         public Amount UnitAmount { get; }
+
+        public ExchangeRate ExchangeRate { get; }
 
         public bool IsDeposit { get; }
     }
