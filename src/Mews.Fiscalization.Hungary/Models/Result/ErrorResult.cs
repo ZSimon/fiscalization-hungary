@@ -4,7 +4,7 @@ namespace Mews.Fiscalization.Hungary.Models
 {
     public sealed class ErrorResult
     {
-        internal ErrorResult(string message, ResultErrorCode errorCode)
+        internal ErrorResult(ResultErrorCode errorCode, string message = null)
         {
             Message = message;
             ErrorCode = errorCode;

@@ -5,6 +5,6 @@
         InvalidCredentials = 1,
         MaintenanceMode = 2,
         InvalidTaxPayer = 3,
-        InvalidInvoiceId = 4
+        InvalidId = 4
     }
 }

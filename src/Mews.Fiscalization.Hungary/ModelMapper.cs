@@ -25,7 +25,7 @@ namespace Mews.Fiscalization.Hungary
             }
             else
             {
-                return new ResponseResult<TaxPayerData>(errorResult: new ErrorResult("Invalid tax payer.", ResultErrorCode.InvalidTaxPayer));
+                return new ResponseResult<TaxPayerData>(errorResult: new ErrorResult(ResultErrorCode.InvalidTaxPayer));
             }
         }
 
@@ -34,7 +34,7 @@ namespace Mews.Fiscalization.Hungary
             var result = response.processingResults;
             if (result == null || result.processingResult.First() == null)
             {
-                return new ResponseResult<InvoiceStatus>(errorResult: new ErrorResult("Invalid invoice id.", ResultErrorCode.InvalidInvoiceId));
+                return new ResponseResult<InvoiceStatus>(errorResult: new ErrorResult(ResultErrorCode.InvalidId));
             }
             else
             {

@@ -4,9 +4,9 @@ using System.Linq;
 
 namespace Mews.Fiscalization.Hungary.Models
 {
-    public sealed class InvoiceValidation
+    public sealed class InvoiceValidationResult
     {
-        public InvoiceValidation(string message, ValidationResultCode resultCode)
+        public InvoiceValidationResult(string message, ValidationResultCode resultCode)
         {
             Message = message;
             ResultCode = resultCode;
@@ -16,19 +16,19 @@ namespace Mews.Fiscalization.Hungary.Models
 
         public ValidationResultCode ResultCode { get; }
 
-        internal static IEnumerable<InvoiceValidation> Map(
+        internal static IEnumerable<InvoiceValidationResult> Map(
             IEnumerable<Dto.BusinessValidationResultType> businessValidations,
             IEnumerable<Dto.TechnicalValidationResultType> technicalValidations)
         {
             return Enumerable.Concat(
-                businessValidations.NullToEmpty().Select(v => new InvoiceValidation(
+                businessValidations.NullToEmpty().Select(v => new InvoiceValidationResult(
                     message: v.message,
-                    resultCode: (ValidationResultCode)v.validationResultCode)
-                ),
-                technicalValidations.NullToEmpty().Select(v => new InvoiceValidation(
+                    resultCode: (ValidationResultCode)v.validationResultCode
+                )),
+                technicalValidations.NullToEmpty().Select(v => new InvoiceValidationResult(
                     message: v.message,
-                    resultCode: (ValidationResultCode)v.validationResultCode)
-                )
+                    resultCode: (ValidationResultCode)v.validationResultCode
+                ))
             );
         }
     }

@@ -5,22 +5,22 @@ namespace Mews.Fiscalization.Hungary.Models
 {
     public sealed class InvoiceStatus
     {
-        public InvoiceStatus(InvoiceStatusType status, IEnumerable<InvoiceValidation> validations)
+        public InvoiceStatus(InvoiceState status, IEnumerable<InvoiceValidationResult> validations)
         {
             Status = status;
             Validations = validations;
         }
 
-        public InvoiceStatusType Status { get; }
+        public InvoiceState Status { get; }
 
-        public IEnumerable<InvoiceValidation> Validations { get; }
+        public IEnumerable<InvoiceValidationResult> Validations { get; }
 
         internal static InvoiceStatus Map(Dto.QueryTransactionStatusResponse response)
         {
             var result = response.processingResults.processingResult.First();
             return new InvoiceStatus(
-                status: (InvoiceStatusType)result.invoiceStatus,
-                validations: InvoiceValidation.Map(result.businessValidationMessages, result.technicalValidationMessages).ToArray()
+                status: (InvoiceState)result.invoiceStatus,
+                validations: InvoiceValidationResult.Map(result.businessValidationMessages, result.technicalValidationMessages).ToArray()
             );
         }
     }

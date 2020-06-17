@@ -3,7 +3,7 @@ using System.Linq;
 
 namespace Mews.Fiscalization.Hungary.Utils
 {
-    public static class Helpers
+    internal static class Helpers
     {
         public static IEnumerable<TSource> NullToEmpty<TSource>(this IEnumerable<TSource> source)
         {

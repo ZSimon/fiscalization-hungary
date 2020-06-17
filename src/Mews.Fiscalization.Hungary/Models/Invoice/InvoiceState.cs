@@ -1,6 +1,6 @@
 ﻿namespace Mews.Fiscalization.Hungary.Models
 {
-    public enum InvoiceStatusType
+    public enum InvoiceState
     {
         Received,
         Processing,
