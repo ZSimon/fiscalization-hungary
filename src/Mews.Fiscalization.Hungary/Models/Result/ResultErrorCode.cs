@@ -4,6 +4,7 @@
     {
         InvalidCredentials = 1,
         MaintenanceMode = 2,
-        InvalidTaxPayer = 3
+        InvalidTaxPayer = 3,
+        InvalidId = 4
     }
 }
