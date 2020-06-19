@@ -1,17 +1,17 @@
 ﻿namespace Mews.Fiscalization.Hungary.Models
 {
-    public sealed class VatCode
+    public sealed class VatCode : ValidatedString
     {
-        public VatCode(string value) //[1-5]{1}
-        {
-            Value = value;
-        }
+        private static readonly string regexValidation = "[1-5]{1}";
 
-        public string Value { get; }
+        public VatCode(string value)
+            : base(value, 1, 1, regexValidation)
+        {
+        }
 
         public static bool IsValid(string value)
         {
-            return true;
+            return IsValid(value, 1, 1, regexValidation);
         }
     }
 }

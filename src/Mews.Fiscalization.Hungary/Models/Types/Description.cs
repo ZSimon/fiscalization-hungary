@@ -1,9 +1,11 @@
 ﻿namespace Mews.Fiscalization.Hungary.Models
 {
-    public sealed class Description : LimitedString1to512
+    public sealed class Description : ValidatedString
     {
-        public Description(string value) // .*[^\s].*
-            : base(value)
+        private static readonly string regexValidation = ".*[^\\s].*";
+
+        public Description(string value)
+            : base(value, 1, 512, regexValidation)
         {
         }
     }

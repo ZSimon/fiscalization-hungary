@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Text.RegularExpressions;
 
 namespace Mews.Fiscalization.Hungary.Utils
 {
@@ -14,6 +15,32 @@ namespace Mews.Fiscalization.Hungary.Utils
             }
 
             return source;
+        }
+
+        public static bool HasFewerDigitsThan(this decimal value, int maxDigitCount)
+        {
+            return value < (decimal)Math.Pow(10, maxDigitCount);
+        }
+
+        public static bool PrecisionSmallerThanOrEqualTo(this decimal value, int maxPrecision)
+        {
+            var wholePart = Math.Floor(value);
+            var fractionalPart = value - wholePart;
+            var rest = fractionalPart * maxPrecision;
+            return Math.Floor(rest) == 0;
+        }
+
+        public static bool MatchesRegex(this string value, string regex)
+        {
+            return value != null && Regex.Match(value, regex).Success;
+        }
+
+        public static bool LengthIsInRange(this string value, int? minLength = null, int? maxLength = null)
+        {
+            var length = value.Length;
+            var isShorterThanMinLength = minLength != null && length < minLength;
+            var exceedsMaxLength = maxLength != null && length > maxLength;
+            return !isShorterThanMinLength && !exceedsMaxLength;
         }
     }
 }

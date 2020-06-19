@@ -1,17 +1,17 @@
 ﻿namespace Mews.Fiscalization.Hungary.Models
 {
-    public sealed class TaxPayerId
+    public sealed class TaxPayerId : ValidatedString
     {
-        public TaxPayerId(string value) // [0-9]{8}
-        {
-            Value = value;
-        }
+        private static readonly string regexValidation = "[0-9]{8}";
 
-        public string Value { get; }
+        public TaxPayerId(string value)
+            :base(value, 8, 8, regexValidation)
+        {
+        }
 
         public static bool IsValid(string value)
         {
-            return true;
+            return IsValid(value, 8, 8, regexValidation);
         }
     }
 }
