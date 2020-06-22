@@ -36,10 +36,10 @@ namespace Mews.Fiscalization.Hungary
                 invoiceData = Encoding.UTF8.GetBytes(XmlManipulator.Serialize(RequestMapper.MapInvoice(invoice))),
                 invoiceOperation = Dto.ManageInvoiceOperationType.CREATE
             });
-            var additionalSignatureData = operationTypes.Select(t => $"{t.invoiceOperation}{Convert.ToBase64String(t.invoiceData)}");
-            var encodedAddtionalSignatureData = Sha512.GetSha3Hash(string.Join("", additionalSignatureData));
+            var invoiceHashes = operationTypes.Select(t => Sha512.GetSha3Hash($"{t.invoiceOperation}{Convert.ToBase64String(t.invoiceData)}"));
+            var invoiceSignatureData = string.Join("", invoiceHashes);
 
-            var request = CreateRequest<Dto.ManageInvoiceRequest>(user, software, encodedAddtionalSignatureData);
+            var request = CreateRequest<Dto.ManageInvoiceRequest>(user, software, invoiceSignatureData);
             request.exchangeToken = Encoding.UTF8.GetString(token.Value);
             request.invoiceOperations = new Dto.InvoiceOperationListType
             {
