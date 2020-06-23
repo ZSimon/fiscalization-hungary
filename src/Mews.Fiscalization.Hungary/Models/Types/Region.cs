@@ -8,5 +8,10 @@
             : base(value, 1, 50, regexValidation, isNullable: true)
         {
         }
+
+        public static bool IsValid(string value)
+        {
+            return IsValid(value, 1, 50, regexValidation, isNullable: true);
+        }
     }
 }

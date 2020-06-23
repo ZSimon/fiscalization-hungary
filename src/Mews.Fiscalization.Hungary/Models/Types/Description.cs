@@ -8,5 +8,10 @@
             : base(value, 1, 512, regexValidation)
         {
         }
+
+        public static bool IsValid(string value)
+        {
+            return IsValid(value, 1, 512, regexValidation);
+        }
     }
 }
