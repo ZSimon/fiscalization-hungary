@@ -1,10 +1,5 @@
 ﻿using Mews.Fiscalization.Hungary.Models;
-using Mews.Fiscalization.Hungary.Models.TaxPayer;
-using Mews.Fiscalization.Hungary.Utils;
 using System;
-using System.Collections;
-using System.Collections.Generic;
-using System.Linq;
 using System.Net.Http;
 using System.Text;
 using System.Threading.Tasks;
@@ -27,7 +22,7 @@ namespace Mews.Fiscalization.Hungary.Utils
             where TDto : class
             where TResult : class
         {
-            var httpResponse = await SendRequestAsync(endpoint, request);
+            var httpResponse = await SendRequestAsync(endpoint, request).ConfigureAwait(continueOnCapturedContext: false);
             return await DeserializeAsync(httpResponse, successFunc);
         }
 
@@ -36,7 +31,7 @@ namespace Mews.Fiscalization.Hungary.Utils
         {
             var content = new StringContent(XmlManipulator.Serialize(request), Encoding.UTF8, "application/xml");
             var uri = new Uri(ServiceInfo.BaseUrls[Environment], $"{ServiceInfo.RelativeServiceUrl}{endpoint}");
-            return await HttpClient.PostAsync(uri, content);
+            return await HttpClient.PostAsync(uri, content).ConfigureAwait(continueOnCapturedContext: false);
         }
 
         private async Task<ResponseResult<TResult>> DeserializeAsync<TDto, TResult>(HttpResponseMessage response, Func<TDto, ResponseResult<TResult>> successFunc)

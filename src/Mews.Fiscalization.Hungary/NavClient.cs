@@ -37,7 +37,7 @@ namespace Mews.Fiscalization.Hungary
                 endpoint: "tokenExchange",
                 request: request,
                 successFunc: response => ModelMapper.MapExchangeToken(response, TechnicalUser)
-            );
+            ).ConfigureAwait(continueOnCapturedContext: false);
         }
 
         public async Task<ResponseResult<TransactionStatus>> GetTransactionStatusAsync(string transactionId)
@@ -52,7 +52,7 @@ namespace Mews.Fiscalization.Hungary
                 endpoint: "queryTransactionStatus",
                 request: request,
                 successFunc: response => ModelMapper.MapTransactionStatus(response)
-            );
+            ).ConfigureAwait(continueOnCapturedContext: false);
         }
 
         public async Task<ResponseResult<TaxPayerData>> GetTaxPayerDataAsync(string taxNumber)
@@ -67,7 +67,7 @@ namespace Mews.Fiscalization.Hungary
                 endpoint: "queryTaxpayer",
                 request: request,
                 successFunc: response => ModelMapper.MapTaxPayerData(response)
-            );
+            ).ConfigureAwait(continueOnCapturedContext: false);
         }
 
         public async Task<ResponseResult<string>> SendInvoicesAsync(ExchangeToken token, IEnumerable<IndexedItem<Invoice>> invoices)
@@ -77,7 +77,7 @@ namespace Mews.Fiscalization.Hungary
                 endpoint: "manageInvoice",
                 request: request,
                 successFunc: response => ModelMapper.MapInvoices(response)
-            );
+            ).ConfigureAwait(continueOnCapturedContext: false);
         }
     }
 }
