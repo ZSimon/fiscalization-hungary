@@ -154,10 +154,12 @@ namespace Mews.Fiscalization.Hungary
                 lineDescription = i.Description.Value,
                 quantity = i.Quantity,
                 unitOfMeasureOwn = i.MeasurementUnit.ToString(),
-                unitPrice = i.UnitAmount.Net.Value,
+                unitPrice = i.UnitAmounts.Amount.Net.Value,
+                unitPriceHUF = i.UnitAmounts.AmountHUF.Net.Value,
                 quantitySpecified = true,
                 unitOfMeasureSpecified = true,
                 unitPriceSpecified = true,
+                unitPriceHUFSpecified = true,
                 depositIndicator = i.IsDeposit,
                 Item = MapLineAmounts(i),
                 aggregateInvoiceLineData = new Dto.AggregateInvoiceLineDataType
