@@ -11,12 +11,19 @@ namespace Mews.Fiscalization.Hungary
     {
         internal static ResponseResult<ExchangeToken> MapExchangeToken(Dto.TokenExchangeResponse response, TechnicalUser user)
         {
-            var decryptedToken = Aes.Decrypt(user.EncryptionKey, response.encodedExchangeToken);
-            return new ResponseResult<ExchangeToken>(successResult: new ExchangeToken(
-                value: decryptedToken,
-                validFrom: response.tokenValidityFrom,
-                validTo: response.tokenValidityTo
-            ));
+            try
+            {
+                var decryptedToken = Aes.Decrypt(user.EncryptionKey.Value, response.encodedExchangeToken);
+                return new ResponseResult<ExchangeToken>(successResult: new ExchangeToken(
+                    value: decryptedToken,
+                    validFrom: response.tokenValidityFrom,
+                    validTo: response.tokenValidityTo
+                ));
+            }
+            catch
+            {
+                return new ResponseResult<ExchangeToken>(errorResult: new ErrorResult(ResultErrorCode.InvalidEncryptionKey, "Invalid encryption key."));
+            }
         }
 
         internal static ResponseResult<TaxPayerData> MapTaxPayerData(Dto.QueryTaxpayerResponse response)
