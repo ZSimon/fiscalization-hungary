@@ -1,5 +1,4 @@
 ﻿using System;
-using System.Collections.Generic;
 using Mews.Fiscalization.Hungary.Models;
 using Mews.Fiscalization.Hungary.Models.TaxPayer;
 using Mews.Fiscalization.Hungary.Utils;
@@ -34,10 +33,8 @@ namespace Mews.Fiscalization.Hungary
                     infoDate: response.infoDate
                 ));
             }
-            else
-            {
-                return new ResponseResult<TaxPayerData>(errorResult: new ErrorResult(ResultErrorCode.InvalidTaxPayer));
-            }
+
+            return new ResponseResult<TaxPayerData>(errorResult: new ErrorResult(ResultErrorCode.InvalidTaxPayer));
         }
 
         internal static ResponseResult<TransactionStatus> MapTransactionStatus(Dto.QueryTransactionStatusResponse response)
