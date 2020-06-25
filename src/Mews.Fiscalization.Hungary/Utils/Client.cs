@@ -21,7 +21,7 @@ namespace Mews.Fiscalization.Hungary.Utils
             where TRequest : class
             where TDto : class
             where TResult : class
-            where TCode : Enum
+            where TCode : struct
         {
             var httpResponse = await SendRequestAsync(endpoint, request).ConfigureAwait(continueOnCapturedContext: false);
             return await DeserializeAsync(httpResponse, successFunc);
@@ -38,7 +38,7 @@ namespace Mews.Fiscalization.Hungary.Utils
         private async Task<ResponseResult<TResult, TCode>> DeserializeAsync<TDto, TResult, TCode>(HttpResponseMessage response, Func<TDto, ResponseResult<TResult, TCode>> successFunc)
             where TDto : class
             where TResult : class
-            where TCode : Enum
+            where TCode : struct
         {
             var content = await response.Content.ReadAsStringAsync();
             if (response.IsSuccessStatusCode)
