@@ -1,5 +1,4 @@
 ﻿using Mews.Fiscalization.Hungary.Models;
-using Mews.Fiscalization.Hungary.Models.TaxPayer;
 using Mews.Fiscalization.Hungary.Utils;
 using System;
 using System.Collections.Generic;
