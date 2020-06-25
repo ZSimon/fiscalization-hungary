@@ -1,4 +1,4 @@
-﻿namespace Mews.Fiscalization.Hungary.Models.Types
+﻿namespace Mews.Fiscalization.Hungary.Models
 {
     public sealed class EncryptionKey : ValidatedString
     {
