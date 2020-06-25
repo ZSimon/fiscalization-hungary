@@ -41,11 +41,6 @@ namespace Mews.Fiscalization.Hungary.Utils
             return !isShorterThanMinLength && !exceedsMaxLength;
         }
 
-        public static decimal SafeDivision(this decimal numerator, decimal denominator)
-        {
-            return (denominator == 0) ? 0 : numerator / denominator;
-        }
-
         public static List<TSource> AsList<TSource>(this IEnumerable<TSource> source)
         {
             return source as List<TSource> ?? source.ToList();
