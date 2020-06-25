@@ -29,10 +29,7 @@ namespace Mews.Fiscalization.Hungary.Models
             IsSelfBilling = isSelfBilling;
             IsCashAccounting = isCashAccounting;
             TaxSummary = GetTaxSummary(Items);
-            ExchangeRate = ExchangeRate.Rounded(Extensions.SafeDivision(
-                numerator: TaxSummary.Sum(s => s.AmountHUF.Tax.Value),
-                denominator: TaxSummary.Sum(s => s.Amount.Tax.Value)
-            ));
+            ExchangeRate = GetExchangeRate(Items);
         }
 
         public InvoiceNumber Number { get; }
@@ -68,6 +65,18 @@ namespace Mews.Fiscalization.Hungary.Models
                 amountHUF: Amount.Sum(g.Select(i => i.TotalAmounts.AmountHUF))
             ));
             return taxSummaryItems.AsList();
+        }
+
+        private ExchangeRate GetExchangeRate(List<Item> items)
+        {
+            var totalGrossHuf = items.Sum(i => Math.Abs(i.TotalAmounts.AmountHUF.Gross.Value));
+            var totalGross = items.Sum(i => Math.Abs(i.TotalAmounts.Amount.Gross.Value));
+            if (totalGross != 0)
+            {
+                return ExchangeRate.Rounded(totalGrossHuf / totalGross);
+            }
+
+            return new ExchangeRate(1);
         }
     }
 }
