@@ -57,7 +57,10 @@ namespace Mews.Fiscalization.Hungary
             var result = response.processingResults;
             if (result?.processingResult == null)
             {
-                return new ResponseResult<TransactionStatus, TransactionErrorCode>(operationErrorResult: new ErrorResult<TransactionErrorCode>(TransactionErrorCode.InvalidId));
+                return new ResponseResult<TransactionStatus, TransactionErrorCode>(operationErrorResult: new ErrorResult<TransactionErrorCode>(
+                    errorCode: TransactionErrorCode.InvalidTransactionId,
+                    message: "Invalid transaction id."
+                ));
             }
 
             return new ResponseResult<TransactionStatus, TransactionErrorCode>(
