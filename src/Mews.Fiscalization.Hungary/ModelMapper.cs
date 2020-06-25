@@ -21,8 +21,7 @@ namespace Mews.Fiscalization.Hungary
             catch
             {
                 return new ResponseResult<ExchangeToken, ExchangeTokenErrorCode>(operationErrorResult: new ErrorResult<ExchangeTokenErrorCode>(
-                    errorCode: ExchangeTokenErrorCode.InvalidEncryptionKey,
-                    message: "Invalid encryption key."
+                    errorCode: ExchangeTokenErrorCode.InvalidEncryptionKey
                 ));
             }
         }
@@ -45,8 +44,7 @@ namespace Mews.Fiscalization.Hungary
             else
             {
                 return new ResponseResult<TaxPayerData, TaxPayerErrorCode>(operationErrorResult: new ErrorResult<TaxPayerErrorCode>(
-                    errorCode: TaxPayerErrorCode.InvalidTaxPayer,
-                    message: "Invalid tax payer id."
+                    errorCode: TaxPayerErrorCode.InvalidTaxPayer
                 ));
             }
         }
@@ -57,8 +55,7 @@ namespace Mews.Fiscalization.Hungary
             if (result?.processingResult == null)
             {
                 return new ResponseResult<TransactionStatus, TransactionErrorCode>(operationErrorResult: new ErrorResult<TransactionErrorCode>(
-                    errorCode: TransactionErrorCode.InvalidTransactionId,
-                    message: "Invalid transaction id."
+                    errorCode: TransactionErrorCode.InvalidTransactionId
                 ));
             }
 
