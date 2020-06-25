@@ -8,8 +8,8 @@ namespace Mews.Fiscalization.Hungary
     {
         internal static Dto.InvoiceData MapInvoice(Invoice invoice)
         {
-            var invoiceAmount = Amount.Sum(invoice.Items.Select(i => i.Amounts.Amount));
-            var invoiceAmountHUF = Amount.Sum(invoice.Items.Select(i => i.Amounts.AmountHUF));
+            var invoiceAmount = Amount.Sum(invoice.Items.Select(i => i.TotalAmounts.Amount));
+            var invoiceAmountHUF = Amount.Sum(invoice.Items.Select(i => i.TotalAmounts.AmountHUF));
             var supplierInfo = invoice.SupplierInfo;
             var customerInfo = invoice.CustomerInfo;
             return new Dto.InvoiceData
@@ -130,17 +130,17 @@ namespace Mews.Fiscalization.Hungary
             {
                 lineGrossAmountData = new Dto.LineGrossAmountDataType
                 {
-                    lineGrossAmountNormal = item.Amounts.Amount.Gross.Value,
-                    lineGrossAmountNormalHUF = item.Amounts.AmountHUF.Gross.Value
+                    lineGrossAmountNormal = item.TotalAmounts.Amount.Gross.Value,
+                    lineGrossAmountNormalHUF = item.TotalAmounts.AmountHUF.Gross.Value
                 },
                 lineNetAmountData = new Dto.LineNetAmountDataType
                 {
-                    lineNetAmount = item.Amounts.Amount.Net.Value,
-                    lineNetAmountHUF = item.Amounts.AmountHUF.Net.Value
+                    lineNetAmount = item.TotalAmounts.Amount.Net.Value,
+                    lineNetAmountHUF = item.TotalAmounts.AmountHUF.Net.Value
                 },
                 lineVatRate = new Dto.VatRateType
                 {
-                    Item = item.Amounts.TaxRatePercentage,
+                    Item = item.TotalAmounts.TaxRatePercentage,
                     ItemElementName = Dto.ItemChoiceType1.vatPercentage
                 }
             };
@@ -154,10 +154,12 @@ namespace Mews.Fiscalization.Hungary
                 lineDescription = i.Description.Value,
                 quantity = i.Quantity,
                 unitOfMeasureOwn = i.MeasurementUnit.ToString(),
-                unitPrice = i.UnitAmount.Net.Value,
+                unitPrice = i.UnitAmounts.Amount.Net.Value,
+                unitPriceHUF = i.UnitAmounts.AmountHUF.Net.Value,
                 quantitySpecified = true,
                 unitOfMeasureSpecified = true,
                 unitPriceSpecified = true,
+                unitPriceHUFSpecified = true,
                 depositIndicator = i.IsDeposit,
                 Item = MapLineAmounts(i),
                 aggregateInvoiceLineData = new Dto.AggregateInvoiceLineDataType
