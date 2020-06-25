@@ -1,10 +1,8 @@
-﻿using System;
-
-namespace Mews.Fiscalization.Hungary.Models
+﻿namespace Mews.Fiscalization.Hungary.Models
 {
     public class ResponseResult<TResult, TCode>
         where TResult : class
-        where TCode : Enum
+        where TCode : struct
     {
         internal ResponseResult(TResult successResult = null, ErrorResult<ResultErrorCode> generalErrorMessage = null, ErrorResult<TCode> operationErrorResult = null)
         {

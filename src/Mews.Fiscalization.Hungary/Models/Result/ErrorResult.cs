@@ -3,7 +3,7 @@
 namespace Mews.Fiscalization.Hungary.Models
 {
     public sealed class ErrorResult<TCode>
-        where TCode : Enum
+        where TCode : struct
     {
         internal ErrorResult(TCode errorCode, string message = null) 
         {
