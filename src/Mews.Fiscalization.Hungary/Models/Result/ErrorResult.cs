@@ -2,9 +2,10 @@
 
 namespace Mews.Fiscalization.Hungary.Models
 {
-    public sealed class ErrorResult
+    public sealed class ErrorResult<TCode>
+        where TCode : Enum
     {
-        internal ErrorResult(ResultErrorCode errorCode, string message = null)
+        internal ErrorResult(TCode errorCode, string message = null) 
         {
             Message = message;
             ErrorCode = errorCode;
@@ -12,11 +13,11 @@ namespace Mews.Fiscalization.Hungary.Models
 
         public string Message { get; }
 
-        public ResultErrorCode ErrorCode { get; }
+        public TCode ErrorCode { get; }
 
-        internal static ErrorResult Map(Dto.GeneralErrorResponse response)
+        internal static ErrorResult<ResultErrorCode> Map(Dto.GeneralErrorResponse response)
         {
-            return new ErrorResult(
+            return new ErrorResult<ResultErrorCode>(
                 message: response.result.message,
                 errorCode: MapErrorCode(response.result.errorCode)
             );

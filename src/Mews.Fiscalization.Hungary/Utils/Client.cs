@@ -17,10 +17,11 @@ namespace Mews.Fiscalization.Hungary.Utils
             Environment = environment;
         }
 
-        internal async Task<ResponseResult<TResult>> ProcessRequestAsync<TRequest, TDto, TResult>(string endpoint, TRequest request, Func<TDto, ResponseResult<TResult>> successFunc)
+        internal async Task<ResponseResult<TResult, TCode>> ProcessRequestAsync<TRequest, TDto, TResult, TCode>(string endpoint, TRequest request, Func<TDto, ResponseResult<TResult, TCode>> successFunc)
             where TRequest : class
             where TDto : class
             where TResult : class
+            where TCode : Enum
         {
             var httpResponse = await SendRequestAsync(endpoint, request).ConfigureAwait(continueOnCapturedContext: false);
             return await DeserializeAsync(httpResponse, successFunc);
@@ -34,9 +35,10 @@ namespace Mews.Fiscalization.Hungary.Utils
             return await HttpClient.PostAsync(uri, content).ConfigureAwait(continueOnCapturedContext: false);
         }
 
-        private async Task<ResponseResult<TResult>> DeserializeAsync<TDto, TResult>(HttpResponseMessage response, Func<TDto, ResponseResult<TResult>> successFunc)
+        private async Task<ResponseResult<TResult, TCode>> DeserializeAsync<TDto, TResult, TCode>(HttpResponseMessage response, Func<TDto, ResponseResult<TResult, TCode>> successFunc)
             where TDto : class
             where TResult : class
+            where TCode : Enum
         {
             var content = await response.Content.ReadAsStringAsync();
             if (response.IsSuccessStatusCode)
@@ -46,7 +48,7 @@ namespace Mews.Fiscalization.Hungary.Utils
             else
             {
                 var errorResult = XmlManipulator.Deserialize<Dto.GeneralErrorResponse>(content);
-                return new ResponseResult<TResult>(errorResult: ErrorResult.Map(errorResult));
+                return new ResponseResult<TResult, TCode>(generalErrorMessage: ErrorResult<TCode>.Map(errorResult));
             }
         }
     }

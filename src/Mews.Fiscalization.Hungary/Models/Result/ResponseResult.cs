@@ -1,16 +1,22 @@
-﻿namespace Mews.Fiscalization.Hungary.Models
+﻿using System;
+
+namespace Mews.Fiscalization.Hungary.Models
 {
-    public class ResponseResult<TResult>
+    public class ResponseResult<TResult, TCode>
         where TResult : class
+        where TCode : Enum
     {
-        internal ResponseResult(TResult successResult = null, ErrorResult errorResult = null)
+        internal ResponseResult(TResult successResult = null, ErrorResult<ResultErrorCode> generalErrorMessage = null, ErrorResult<TCode> operationErrorResult = null)
         {
             SuccessResult = successResult;
-            ErrorResult = errorResult;
+            GeneralErrorResult = generalErrorMessage;
+            OperationalErrorResult = operationErrorResult;
         }
 
         public TResult SuccessResult { get; }
 
-        public ErrorResult ErrorResult { get; }
+        public ErrorResult<ResultErrorCode> GeneralErrorResult { get; }
+
+        public ErrorResult<TCode> OperationalErrorResult { get; }
     }
 }

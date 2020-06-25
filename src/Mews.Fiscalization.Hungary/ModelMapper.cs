@@ -1,6 +1,5 @@
 ﻿using System;
 using Mews.Fiscalization.Hungary.Models;
-using Mews.Fiscalization.Hungary.Models.TaxPayer;
 using Mews.Fiscalization.Hungary.Utils;
 using System.Linq;
 
@@ -8,12 +7,12 @@ namespace Mews.Fiscalization.Hungary
 {
     internal static class ModelMapper
     {
-        internal static ResponseResult<ExchangeToken> MapExchangeToken(Dto.TokenExchangeResponse response, TechnicalUser user)
+        internal static ResponseResult<ExchangeToken, ExchangeTokenErrorCode> MapExchangeToken(Dto.TokenExchangeResponse response, TechnicalUser user)
         {
             try
             {
                 var decryptedToken = Aes.Decrypt(user.EncryptionKey.Value, response.encodedExchangeToken);
-                return new ResponseResult<ExchangeToken>(successResult: new ExchangeToken(
+                return new ResponseResult<ExchangeToken, ExchangeTokenErrorCode>(successResult: new ExchangeToken(
                     value: decryptedToken,
                     validFrom: response.tokenValidityFrom,
                     validTo: response.tokenValidityTo
@@ -21,18 +20,20 @@ namespace Mews.Fiscalization.Hungary
             }
             catch
             {
-                return new ResponseResult<ExchangeToken>(errorResult: new ErrorResult(ResultErrorCode.InvalidEncryptionKey, "Invalid encryption key."));
+                return new ResponseResult<ExchangeToken, ExchangeTokenErrorCode>(operationErrorResult: new ErrorResult<ExchangeTokenErrorCode>(
+                    errorCode: ExchangeTokenErrorCode.InvalidEncryptionKey
+                ));
             }
         }
 
-        internal static ResponseResult<TaxPayerData> MapTaxPayerData(Dto.QueryTaxpayerResponse response)
+        internal static ResponseResult<TaxPayerData, TaxPayerErrorCode> MapTaxPayerData(Dto.QueryTaxpayerResponse response)
         {
             if (response.taxpayerValidity)
             {
                 var addressItem = response.taxpayerData.taxpayerAddressList.First();
                 var taxPayerData = response.taxpayerData;
                 var taxNumberDetail = taxPayerData.taxNumberDetail;
-                return new ResponseResult<TaxPayerData>(successResult: new TaxPayerData(
+                return new ResponseResult<TaxPayerData, TaxPayerErrorCode>(successResult: new TaxPayerData(
                     id: taxNumberDetail.taxpayerId,
                     name: taxPayerData.taxpayerName,
                     address: MapAddress(addressItem),
@@ -40,28 +41,34 @@ namespace Mews.Fiscalization.Hungary
                     infoDate: response.infoDate
                 ));
             }
-
-            return new ResponseResult<TaxPayerData>(errorResult: new ErrorResult(ResultErrorCode.InvalidTaxPayer));
+            else
+            {
+                return new ResponseResult<TaxPayerData, TaxPayerErrorCode>(operationErrorResult: new ErrorResult<TaxPayerErrorCode>(
+                    errorCode: TaxPayerErrorCode.InvalidTaxPayer
+                ));
+            }
         }
 
-        internal static ResponseResult<TransactionStatus> MapTransactionStatus(Dto.QueryTransactionStatusResponse response)
+        internal static ResponseResult<TransactionStatus, TransactionErrorCode> MapTransactionStatus(Dto.QueryTransactionStatusResponse response)
         {
             var result = response.processingResults;
             if (result?.processingResult == null)
             {
-                return new ResponseResult<TransactionStatus>(errorResult: new ErrorResult(ResultErrorCode.InvalidId));
+                return new ResponseResult<TransactionStatus, TransactionErrorCode>(operationErrorResult: new ErrorResult<TransactionErrorCode>(
+                    errorCode: TransactionErrorCode.InvalidTransactionId
+                ));
             }
 
-            return new ResponseResult<TransactionStatus>(
+            return new ResponseResult<TransactionStatus, TransactionErrorCode>(
                 successResult: new TransactionStatus(
                     invoiceStatuses: result.processingResult.Select(r => InvoiceStatus.Map(r))
                 )
             );
         }
 
-        internal static ResponseResult<string> MapInvoices(Dto.ManageInvoiceResponse response)
+        internal static ResponseResult<string, ResultErrorCode> MapInvoices(Dto.ManageInvoiceResponse response)
         {
-            return new ResponseResult<string>(successResult: response.transactionId);
+            return new ResponseResult<string, ResultErrorCode>(successResult: response.transactionId);
         }
 
         private static Address MapAddress(Dto.TaxpayerAddressItemType addressItem)

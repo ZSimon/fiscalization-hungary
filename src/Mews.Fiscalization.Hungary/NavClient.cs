@@ -1,5 +1,4 @@
 ﻿using Mews.Fiscalization.Hungary.Models;
-using Mews.Fiscalization.Hungary.Models.TaxPayer;
 using Mews.Fiscalization.Hungary.Utils;
 using System;
 using System.Collections.Generic;
@@ -30,17 +29,17 @@ namespace Mews.Fiscalization.Hungary
             Client = new Client(HttpClient, environment);
         }
 
-        public async Task<ResponseResult<ExchangeToken>> GetExchangeTokenAsync()
+        public async Task<ResponseResult<ExchangeToken, ExchangeTokenErrorCode>> GetExchangeTokenAsync()
         {
             var request = RequestCreator.CreateTokenExchangeRequest(TechnicalUser, SoftwareIdentification);
-            return await Client.ProcessRequestAsync<Dto.TokenExchangeRequest, Dto.TokenExchangeResponse, ExchangeToken>(
+            return await Client.ProcessRequestAsync<Dto.TokenExchangeRequest, Dto.TokenExchangeResponse, ExchangeToken, ExchangeTokenErrorCode>(
                 endpoint: "tokenExchange",
                 request: request,
                 successFunc: response => ModelMapper.MapExchangeToken(response, TechnicalUser)
             ).ConfigureAwait(continueOnCapturedContext: false);
         }
 
-        public async Task<ResponseResult<TransactionStatus>> GetTransactionStatusAsync(string transactionId)
+        public async Task<ResponseResult<TransactionStatus, TransactionErrorCode>> GetTransactionStatusAsync(string transactionId)
         {
             if (string.IsNullOrEmpty(transactionId))
             {
@@ -48,32 +47,27 @@ namespace Mews.Fiscalization.Hungary
             }
 
             var request = RequestCreator.CreateQueryTransactionStatusRequest(TechnicalUser, SoftwareIdentification, transactionId);
-            return await Client.ProcessRequestAsync<Dto.QueryTransactionStatusRequest, Dto.QueryTransactionStatusResponse, TransactionStatus>(
+            return await Client.ProcessRequestAsync<Dto.QueryTransactionStatusRequest, Dto.QueryTransactionStatusResponse, TransactionStatus, TransactionErrorCode>(
                 endpoint: "queryTransactionStatus",
                 request: request,
                 successFunc: response => ModelMapper.MapTransactionStatus(response)
             ).ConfigureAwait(continueOnCapturedContext: false);
         }
 
-        public async Task<ResponseResult<TaxPayerData>> GetTaxPayerDataAsync(string taxNumber)
+        public async Task<ResponseResult<TaxPayerData, TaxPayerErrorCode>> GetTaxPayerDataAsync(TaxPayerId taxId)
         {
-            if (string.IsNullOrEmpty(taxNumber))
-            {
-                throw new ArgumentException("taxNumber must be specified.");
-            }
-
-            var request = RequestCreator.CreateQueryTaxpayerRequest(TechnicalUser, SoftwareIdentification, taxNumber);
-            return await Client.ProcessRequestAsync<Dto.QueryTaxpayerRequest, Dto.QueryTaxpayerResponse, TaxPayerData>(
+            var request = RequestCreator.CreateQueryTaxpayerRequest(TechnicalUser, SoftwareIdentification, taxId.Value);
+            return await Client.ProcessRequestAsync<Dto.QueryTaxpayerRequest, Dto.QueryTaxpayerResponse, TaxPayerData, TaxPayerErrorCode>(
                 endpoint: "queryTaxpayer",
                 request: request,
                 successFunc: response => ModelMapper.MapTaxPayerData(response)
             ).ConfigureAwait(continueOnCapturedContext: false);
         }
 
-        public async Task<ResponseResult<string>> SendInvoicesAsync(ExchangeToken token, IEnumerable<IndexedItem<Invoice>> invoices)
+        public async Task<ResponseResult<string, ResultErrorCode>> SendInvoicesAsync(ExchangeToken token, IEnumerable<IndexedItem<Invoice>> invoices)
         {
             var request = RequestCreator.CreateManageInvoicesRequest(TechnicalUser, SoftwareIdentification, token, invoices);
-            return await Client.ProcessRequestAsync<Dto.ManageInvoiceRequest, Dto.ManageInvoiceResponse, string>(
+            return await Client.ProcessRequestAsync<Dto.ManageInvoiceRequest, Dto.ManageInvoiceResponse, string, ResultErrorCode>(
                 endpoint: "manageInvoice",
                 request: request,
                 successFunc: response => ModelMapper.MapInvoices(response)
