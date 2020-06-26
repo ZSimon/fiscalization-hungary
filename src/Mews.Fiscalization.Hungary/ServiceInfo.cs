@@ -3,18 +3,21 @@ using System.Collections.Generic;
 
 namespace Mews.Fiscalization.Hungary
 {
-    internal static class ServiceInfo
+    public static class ServiceInfo
     {
-        public static string Version  { get; }
+        public static int MaxInvoiceBatchSize { get; }
 
-        public static string XmlNamespace { get; }
+        internal static string Version  { get; }
 
-        public static Dictionary<NavEnvironment, Uri> BaseUrls { get; }
+        internal static string XmlNamespace { get; }
 
-        public static Uri RelativeServiceUrl { get; }
+        internal static Dictionary<NavEnvironment, Uri> BaseUrls { get; }
+
+        internal static Uri RelativeServiceUrl { get; }
 
         static ServiceInfo()
         {
+            MaxInvoiceBatchSize = 100;
             Version = "2.0";
             XmlNamespace = "http://schemas.nav.gov.hu/OSA/2.0/api";
             BaseUrls = new Dictionary<NavEnvironment, Uri>

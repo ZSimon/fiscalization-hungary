@@ -66,7 +66,18 @@ namespace Mews.Fiscalization.Hungary
 
         public async Task<ResponseResult<string, ResultErrorCode>> SendInvoicesAsync(ExchangeToken token, IEnumerable<IndexedItem<Invoice>> invoices)
         {
-            var request = RequestCreator.CreateManageInvoicesRequest(TechnicalUser, SoftwareIdentification, token, invoices);
+            var listedInvoices = invoices.AsList();
+            if (listedInvoices.Count > ServiceInfo.MaxInvoiceBatchSize)
+            {
+                throw new ArgumentException($"Max invoice batch size ({ServiceInfo.MaxInvoiceBatchSize}) exceeded.", nameof(invoices));
+            }
+
+            if (!listedInvoices.IsSequential(startIndex: 1))
+            {
+                throw new ArgumentException("Invoices are not indexed correctly.", nameof(invoices));
+            }
+
+            var request = RequestCreator.CreateManageInvoicesRequest(TechnicalUser, SoftwareIdentification, token, listedInvoices);
             return await Client.ProcessRequestAsync<Dto.ManageInvoiceRequest, Dto.ManageInvoiceResponse, string, ResultErrorCode>(
                 endpoint: "manageInvoice",
                 request: request,

@@ -22,7 +22,7 @@ namespace Mews.Fiscalization.Hungary.Models
             IssueDate = issueDate;
             SupplierInfo = Check.NotNull(supplierInfo, nameof(supplierInfo));
             CustomerInfo = Check.NotNull(customerInfo, nameof(customerInfo));
-            Items = Check.NotNull(items, nameof(items)).AsList();
+            Items = Check.NonEmpty(Check.NotNull(items, nameof(items)), nameof(items)).AsList();
             DeliveryDate = Items.Max(i => i.ConsumptionDate);
             PaymentDate = paymentDate;
             CurrencyCode = Check.NotNull(currencyCode, nameof(currencyCode));
@@ -30,6 +30,8 @@ namespace Mews.Fiscalization.Hungary.Models
             IsCashAccounting = isCashAccounting;
             TaxSummary = GetTaxSummary(Items);
             ExchangeRate = GetExchangeRate(Items);
+
+            CheckConsistency(this);
         }
 
         public InvoiceNumber Number { get; }
@@ -77,6 +79,16 @@ namespace Mews.Fiscalization.Hungary.Models
             }
 
             return new ExchangeRate(1);
+        }
+
+        private static void CheckConsistency(Invoice invoice)
+        {
+            var nonDefaultCurrency = !invoice.CurrencyCode.Equals(TaxationInfo.DefaultCurrencyCode);
+            var hasRequiredTaxRates = nonDefaultCurrency.Implies(() => invoice.Items.All(i => i.ExchangeRate != null));
+            if (!hasRequiredTaxRates)
+            {
+                throw new InvalidOperationException("Exchange rate needs to be specified for all items.");
+            }
         }
     }
 }

@@ -1,10 +1,13 @@
 using System.Collections.Generic;
+using Mews.Fiscalization.Hungary.Models;
 
 namespace Mews.Fiscalization.Hungary
 {
     public static class TaxationInfo
     {
         internal static HashSet<decimal> PercentageTaxRates { get; }
+
+        internal static CurrencyCode DefaultCurrencyCode { get; }
 
         static TaxationInfo()
         {
@@ -18,6 +21,7 @@ namespace Mews.Fiscalization.Hungary
                 0.25m,
                 0.27m,
             };
+            DefaultCurrencyCode = new CurrencyCode("HUF");
         }
     }
 }
