@@ -4,11 +4,11 @@ namespace Mews.Fiscalization.Hungary
 {
     public static class TaxationInfo
     {
-        internal static List<decimal> PercentageTaxRates { get; }
+        internal static HashSet<decimal> PercentageTaxRates { get; }
 
         static TaxationInfo()
         {
-            PercentageTaxRates = new List<decimal>
+            PercentageTaxRates = new HashSet<decimal>
             {
                 0.05m,
                 0.07m,
