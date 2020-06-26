@@ -21,7 +21,7 @@ namespace Mews.Fiscalization.Hungary.Models
             MeasurementUnit = measurementUnit;
             Description = Check.NotNull(description, nameof(description));
             Quantity = quantity;
-            ExchangeRate = exchangeRate; // TODO - check that it is provided if price is not in HUF.
+            ExchangeRate = exchangeRate;
             IsDeposit = isDeposit;
         }
 

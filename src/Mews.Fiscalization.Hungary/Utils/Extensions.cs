@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Text.RegularExpressions;
+using Mews.Fiscalization.Hungary.Models;
 
 namespace Mews.Fiscalization.Hungary.Utils
 {
@@ -44,6 +45,18 @@ namespace Mews.Fiscalization.Hungary.Utils
         public static List<TSource> AsList<TSource>(this IEnumerable<TSource> source)
         {
             return source as List<TSource> ?? source.ToList();
+        }
+
+        public static bool Implies(this bool a, Func<bool> b)
+        {
+            return !a || b();
+        }
+
+        public static bool IsSequential<T>(this List<IndexedItem<T>> collection, int startIndex)
+        {
+            var expectedIndices = new HashSet<int>(Enumerable.Range(start: startIndex, count: collection.Count));
+            var actualIndices = collection.Select(i => i.Index);
+            return expectedIndices.SetEquals(actualIndices);
         }
     }
 }

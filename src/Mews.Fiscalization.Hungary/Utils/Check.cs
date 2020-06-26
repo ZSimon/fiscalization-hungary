@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
 
@@ -10,6 +11,17 @@ namespace Mews.Fiscalization.Hungary.Utils
             where T : class
         {
             return value ?? throw new ArgumentNullException(name);
+        }
+
+        public static IEnumerable<TItem> NonEmpty<TItem>(IEnumerable<TItem> value, string name)
+            where TItem : class
+        {
+            NotNull(value, name);
+            if (value.FirstOrDefault() == null)
+            {
+                throw new ArgumentException("Collection is empty.", name);
+            }
+            return value;
         }
 
         public static void Digits(decimal value, int maxdigitCount)
