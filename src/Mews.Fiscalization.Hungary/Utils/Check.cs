@@ -1,4 +1,6 @@
 ﻿using System;
+using System.Collections.Generic;
+using System.Linq;
 
 namespace Mews.Fiscalization.Hungary.Utils
 {
@@ -26,15 +28,17 @@ namespace Mews.Fiscalization.Hungary.Utils
             }
         }
 
-        public static void InRange(decimal value, decimal? min = null, decimal? max = null)
+        public static void InRange(decimal value, decimal? min = null, decimal? max = null, bool closed = true)
         {
-            if (value < min)
+            if (value < min || (!closed && min == value))
             {
-                throw new ArgumentException($"Min allowed value is {min}.");
+                var hint = closed ? "" : " higher than";
+                throw new ArgumentException($"Min allowed value is{hint} {min}.");
             }
-            if (value > max)
+            if (value > max || (!closed && max == value))
             {
-                throw new ArgumentException($"Max allowed value is {max}.");
+                var hint = closed ? "" : " lower than";
+                throw new ArgumentException($"Max allowed value is{hint} {max}.");
             }
         }
 
@@ -47,6 +51,14 @@ namespace Mews.Fiscalization.Hungary.Utils
             if (maxLength != null)
             {
                 MaxLength(value, maxLength.Value);
+            }
+        }
+
+        public static void In<T>(T value, IEnumerable<T> values, string name)
+        {
+            if (!values.Contains(value))
+            {
+                throw new ArgumentOutOfRangeException($"Value ({value}) is not allowed.", name);
             }
         }
 

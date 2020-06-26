@@ -18,7 +18,7 @@ namespace Mews.Fiscalization.Hungary
                 invoiceNumber = invoice.Number.Value,
                 invoiceMain = new Dto.InvoiceMainType
                 {
-                    Items = new Dto.InvoiceType[]
+                    Items = new object[]
                     {
                         new Dto.InvoiceType
                         {
@@ -63,7 +63,7 @@ namespace Mews.Fiscalization.Hungary
                                     invoiceGrossAmount = invoiceAmount.Gross.Value,
                                     invoiceGrossAmountHUF = invoiceAmountHUF.Gross.Value
                                 },
-                                Items = new Dto.SummaryNormalType[]
+                                Items = new object[]
                                 {
                                     MapTaxSummary(invoice, invoiceAmount, invoiceAmountHUF)
                                 }
@@ -74,7 +74,7 @@ namespace Mews.Fiscalization.Hungary
             };
         }
 
-        internal static Dto.SummaryNormalType MapTaxSummary(Invoice invoice, Amount amount, Amount amountHUF)
+        private static Dto.SummaryNormalType MapTaxSummary(Invoice invoice, Amount amount, Amount amountHUF)
         {
             return new Dto.SummaryNormalType
             {
@@ -86,15 +86,11 @@ namespace Mews.Fiscalization.Hungary
             };
         }
 
-        internal static Dto.SummaryByVatRateType MapSummaryByVatRate(TaxSummaryItem taxSummary)
+        private static Dto.SummaryByVatRateType MapSummaryByVatRate(TaxSummaryItem taxSummary)
         {
             return new Dto.SummaryByVatRateType
             {
-                vatRate = new Dto.VatRateType
-                {
-                    Item = taxSummary.TaxRatePercentage,
-                    ItemElementName = Dto.ItemChoiceType1.vatPercentage
-                },
+                vatRate = GetVatRate(taxSummary.TaxRatePercentage),
                 vatRateNetData = new Dto.VatRateNetDataType
                 {
                     vatRateNetAmount = taxSummary.Amount.Net.Value,
@@ -108,7 +104,7 @@ namespace Mews.Fiscalization.Hungary
             };
         }
 
-        internal static Dto.AddressType MapAddress(SimpleAddress address)
+        private static Dto.AddressType MapAddress(SimpleAddress address)
         {
             return new Dto.AddressType
             {
@@ -124,7 +120,7 @@ namespace Mews.Fiscalization.Hungary
         }
 
 
-        internal static Dto.LineAmountsNormalType MapLineAmounts(Item item)
+        private static Dto.LineAmountsNormalType MapLineAmounts(Item item)
         {
             return new Dto.LineAmountsNormalType
             {
@@ -138,15 +134,11 @@ namespace Mews.Fiscalization.Hungary
                     lineNetAmount = item.TotalAmounts.Amount.Net.Value,
                     lineNetAmountHUF = item.TotalAmounts.AmountHUF.Net.Value
                 },
-                lineVatRate = new Dto.VatRateType
-                {
-                    Item = item.TotalAmounts.TaxRatePercentage,
-                    ItemElementName = Dto.ItemChoiceType1.vatPercentage
-                }
+                lineVatRate = GetVatRate(item.TotalAmounts.TaxRatePercentage)
             };
         }
 
-        internal static IEnumerable<Dto.LineType> MapItems(IEnumerable<Item> items)
+        private static IEnumerable<Dto.LineType> MapItems(IEnumerable<Item> items)
         {
             return items.Select((i, index) => new Dto.LineType
             {
@@ -169,6 +161,24 @@ namespace Mews.Fiscalization.Hungary
                     lineDeliveryDate = i.ConsumptionDate
                 }
             });
+        }
+
+        private static Dto.VatRateType GetVatRate(decimal? taxRatePercentage)
+        {
+            if (taxRatePercentage.HasValue)
+            {
+                return new Dto.VatRateType
+                {
+                    Item = taxRatePercentage,
+                    ItemElementName = Dto.ItemChoiceType1.vatPercentage
+                };
+            }
+
+            return new Dto.VatRateType
+            {
+                Item = true,
+                ItemElementName = Dto.ItemChoiceType1.vatOutOfScope
+            };
         }
     }
 }
