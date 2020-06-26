@@ -16,7 +16,7 @@
 
         public override bool Equals(object other)
         {
-            return other is CurrencyCode otherCurrencyCode ? otherCurrencyCode.Value == Value : base.Equals(other);
+            return other is CurrencyCode otherCurrencyCode && otherCurrencyCode.Value == Value;
         }
     }
 }
