@@ -22,7 +22,7 @@ namespace Mews.Fiscalization.Hungary.Models
             IssueDate = issueDate;
             SupplierInfo = Check.NotNull(supplierInfo, nameof(supplierInfo));
             CustomerInfo = Check.NotNull(customerInfo, nameof(customerInfo));
-            Items = Check.NonEmpty(Check.NotNull(items, nameof(items)), nameof(items)).AsList();
+            Items = Check.NonEmpty(items, nameof(items)).AsList();
             DeliveryDate = Items.Max(i => i.ConsumptionDate);
             PaymentDate = paymentDate;
             CurrencyCode = Check.NotNull(currencyCode, nameof(currencyCode));
