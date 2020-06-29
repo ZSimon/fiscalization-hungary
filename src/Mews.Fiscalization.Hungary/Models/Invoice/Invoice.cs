@@ -5,61 +5,50 @@ using System.Linq;
 
 namespace Mews.Fiscalization.Hungary.Models
 {
-    public class Invoice
+    public sealed class Invoice : FiscalizationDocument
     {
         public Invoice(
             InvoiceNumber number,
             DateTime issueDate,
             SupplierInfo supplierInfo,
             CustomerInfo customerInfo,
-            IEnumerable<Item> items,
+            IEnumerable<IndexedItem<InvoiceItem>> items,
             DateTime paymentDate,
             CurrencyCode currencyCode,
             bool isSelfBilling = false,
             bool isCashAccounting = false)
+        : base(
+            number,
+            issueDate,
+            supplierInfo,
+            customerInfo,
+            currencyCode,
+            GetExchangeRate(items),
+            GetTaxSummary(items)
+        )
         {
-            Number = Check.NotNull(number, nameof(InvoiceNumber));
-            IssueDate = issueDate;
-            SupplierInfo = Check.NotNull(supplierInfo, nameof(supplierInfo));
-            CustomerInfo = Check.NotNull(customerInfo, nameof(customerInfo));
             Items = Check.NonEmpty(items, nameof(items)).AsList();
-            DeliveryDate = Items.Max(i => i.ConsumptionDate);
+            DeliveryDate = Items.Max(i => i.Item.ConsumptionDate);
             PaymentDate = paymentDate;
-            CurrencyCode = Check.NotNull(currencyCode, nameof(currencyCode));
             IsSelfBilling = isSelfBilling;
             IsCashAccounting = isCashAccounting;
-            TaxSummary = GetTaxSummary(Items);
-            ExchangeRate = GetExchangeRate(Items);
 
             CheckConsistency(this);
         }
 
-        public InvoiceNumber Number { get; }
-
-        public DateTime IssueDate { get; }
-
-        public SupplierInfo SupplierInfo { get; }
-
-        public CustomerInfo CustomerInfo { get; }
-
-        public List<Item> Items { get; }
-
-        public List<TaxSummaryItem> TaxSummary { get; }
+        public List<IndexedItem<InvoiceItem>> Items { get; }
 
         public DateTime DeliveryDate { get; }
 
         public DateTime PaymentDate { get; }
 
-        public CurrencyCode CurrencyCode { get; }
-
-        public ExchangeRate ExchangeRate { get; }
-
         public bool IsSelfBilling { get; }
 
         public bool IsCashAccounting { get; }
 
-        private List<TaxSummaryItem> GetTaxSummary(IEnumerable<Item> items)
+        private static List<TaxSummaryItem> GetTaxSummary(IEnumerable<IndexedItem<InvoiceItem>> input)
         {
+            var items = input.Select(i => i.Item);
             var itemsByTaxRate = items.GroupBy(i => i.TotalAmounts.TaxRatePercentage);
             var taxSummaryItems = itemsByTaxRate.Select(g => new TaxSummaryItem(
                 taxRatePercentage: g.Key,
@@ -69,8 +58,9 @@ namespace Mews.Fiscalization.Hungary.Models
             return taxSummaryItems.AsList();
         }
 
-        private ExchangeRate GetExchangeRate(List<Item> items)
+        private static ExchangeRate GetExchangeRate(IEnumerable<IndexedItem<InvoiceItem>> input)
         {
+            var items = input.Select(i => i.Item).AsList();
             var totalGrossHuf = items.Sum(i => Math.Abs(i.TotalAmounts.AmountHUF.Gross.Value));
             var totalGross = items.Sum(i => Math.Abs(i.TotalAmounts.Amount.Gross.Value));
             if (totalGross != 0)
@@ -84,7 +74,7 @@ namespace Mews.Fiscalization.Hungary.Models
         private static void CheckConsistency(Invoice invoice)
         {
             var nonDefaultCurrency = !invoice.CurrencyCode.Equals(TaxationInfo.DefaultCurrencyCode);
-            var hasRequiredTaxRates = nonDefaultCurrency.Implies(() => invoice.Items.All(i => i.ExchangeRate != null));
+            var hasRequiredTaxRates = nonDefaultCurrency.Implies(() => invoice.Items.All(i => i.Item.ExchangeRate != null));
             if (!hasRequiredTaxRates)
             {
                 throw new InvalidOperationException("Exchange rate needs to be specified for all items.");
