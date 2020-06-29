@@ -1,6 +1,5 @@
 ﻿using Mews.Fiscalization.Hungary.Utils;
 using System;
-using System.Collections.Generic;
 using System.Linq;
 
 namespace Mews.Fiscalization.Hungary.Models
@@ -12,7 +11,7 @@ namespace Mews.Fiscalization.Hungary.Models
             DateTime issueDate,
             SupplierInfo supplierInfo,
             CustomerInfo customerInfo,
-            IIndexedEnumerable<InvoiceItem> items,
+            ISequentialEnumerable<InvoiceItem> items,
             DateTime paymentDate,
             CurrencyCode currencyCode,
             bool isSelfBilling = false,

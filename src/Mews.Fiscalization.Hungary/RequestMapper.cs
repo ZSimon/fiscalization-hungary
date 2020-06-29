@@ -138,11 +138,11 @@ namespace Mews.Fiscalization.Hungary
             };
         }
 
-        private static IEnumerable<Dto.LineType> MapItems(IEnumerable<IndexedItem<InvoiceItem>> items)
+        private static IEnumerable<Dto.LineType> MapItems(ISequentialEnumerable<InvoiceItem> items)
         {
             return items.Select(i => new Dto.LineType
             {
-                lineNumber = (i.Index + 1).ToString(),
+                lineNumber = i.Index.ToString(),
                 lineDescription = i.Item.Description.Value,
                 quantity = i.Item.Quantity,
                 unitOfMeasureOwn = i.Item.MeasurementUnit.ToString(),

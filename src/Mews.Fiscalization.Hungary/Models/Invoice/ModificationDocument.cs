@@ -19,7 +19,7 @@ namespace Mews.Fiscalization.Hungary.Models
             SupplierInfo supplierInfo,
             CustomerInfo customerInfo,
             CurrencyCode currencyCode,
-            IIndexedEnumerable<CorrectionalItem> items)
+            ISequentialEnumerable<CorrectionalItem> items)
             : base(number, issueDate, supplierInfo, customerInfo, currencyCode, items)
         {
             OriginalDocumentNumber = originalDocumentNumber;

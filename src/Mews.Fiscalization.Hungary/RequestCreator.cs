@@ -28,7 +28,7 @@ namespace Mews.Fiscalization.Hungary
             return request;
         }
 
-        internal static Dto.ManageInvoiceRequest CreateManageInvoicesRequest(TechnicalUser user, SoftwareIdentification software, ExchangeToken token, IEnumerable<IndexedItem<Invoice>> invoices)
+        internal static Dto.ManageInvoiceRequest CreateManageInvoicesRequest(TechnicalUser user, SoftwareIdentification software, ExchangeToken token, ISequentialEnumerable<Invoice> invoices)
         {
             var operationTypes = invoices.Select(indexedInvoice => new Dto.InvoiceOperationType
             {
