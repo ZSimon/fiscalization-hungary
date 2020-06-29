@@ -23,8 +23,8 @@ namespace Mews.Fiscalization.Hungary.Models
             supplierInfo,
             customerInfo,
             currencyCode,
-            GetExchangeRate(items),
-            GetTaxSummary(items)
+            GetExchangeRate(items.Select(i => i.Item)),
+            GetTaxSummary(items.Select(i => i.Item))
         )
         {
             Items = Check.NonEmpty(items, nameof(items)).AsList();
@@ -45,31 +45,6 @@ namespace Mews.Fiscalization.Hungary.Models
         public bool IsSelfBilling { get; }
 
         public bool IsCashAccounting { get; }
-
-        private static List<TaxSummaryItem> GetTaxSummary(IEnumerable<IndexedItem<InvoiceItem>> input)
-        {
-            var items = input.Select(i => i.Item);
-            var itemsByTaxRate = items.GroupBy(i => i.TotalAmounts.TaxRatePercentage);
-            var taxSummaryItems = itemsByTaxRate.Select(g => new TaxSummaryItem(
-                taxRatePercentage: g.Key,
-                amount: Amount.Sum(g.Select(i => i.TotalAmounts.Amount)),
-                amountHUF: Amount.Sum(g.Select(i => i.TotalAmounts.AmountHUF))
-            ));
-            return taxSummaryItems.AsList();
-        }
-
-        private static ExchangeRate GetExchangeRate(IEnumerable<IndexedItem<InvoiceItem>> input)
-        {
-            var items = input.Select(i => i.Item).AsList();
-            var totalGrossHuf = items.Sum(i => Math.Abs(i.TotalAmounts.AmountHUF.Gross.Value));
-            var totalGross = items.Sum(i => Math.Abs(i.TotalAmounts.Amount.Gross.Value));
-            if (totalGross != 0)
-            {
-                return ExchangeRate.Rounded(totalGrossHuf / totalGross);
-            }
-
-            return new ExchangeRate(1);
-        }
 
         private static void CheckConsistency(Invoice invoice)
         {
