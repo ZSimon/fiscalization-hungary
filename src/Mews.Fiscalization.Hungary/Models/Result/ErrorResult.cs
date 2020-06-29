@@ -36,7 +36,7 @@ namespace Mews.Fiscalization.Hungary.Models
                 case "FORBIDDEN":
                     return ResultErrorCode.UnauthorizedUser;
                 case "INVALID_REQUEST_SIGNATURE":
-                    throw new InvalidOperationException("Invalid request signature.");
+                    return ResultErrorCode.InvalidRequestSignature;
                 default:
                     throw new NotImplementedException($"Error code: {errorCode} is not implemented.");
             }
