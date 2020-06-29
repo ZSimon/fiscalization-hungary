@@ -3,7 +3,7 @@ using System;
 
 namespace Mews.Fiscalization.Hungary.Models
 {
-    public class InvoiceItem
+    public sealed class InvoiceItem
     {
         public InvoiceItem(
             DateTime consumptionDate,

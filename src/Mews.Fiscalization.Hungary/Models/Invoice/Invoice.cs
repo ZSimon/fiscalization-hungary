@@ -4,7 +4,7 @@ using System.Linq;
 
 namespace Mews.Fiscalization.Hungary.Models
 {
-    public sealed class Invoice : FiscalizationDocument<InvoiceItem>
+    public sealed class Invoice : FiscalizationDocument
     {
         public Invoice(
             InvoiceNumber number,

@@ -51,12 +51,5 @@ namespace Mews.Fiscalization.Hungary.Utils
         {
             return !a || b();
         }
-
-        public static bool IsSequential<T>(this List<IndexedItem<T>> collection, int startIndex)
-        {
-            var expectedIndices = new HashSet<int>(Enumerable.Range(start: startIndex, count: collection.Count));
-            var actualIndices = collection.Select(i => i.Index);
-            return expectedIndices.SetEquals(actualIndices);
-        }
     }
 }

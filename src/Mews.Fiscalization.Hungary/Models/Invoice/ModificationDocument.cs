@@ -2,7 +2,7 @@ using System;
 
 namespace Mews.Fiscalization.Hungary.Models
 {
-    public sealed class ModificationDocument : FiscalizationDocument<CorrectionalItem>
+    public sealed class ModificationDocument : FiscalizationDocument
     {
         public InvoiceNumber OriginalDocumentNumber { get; }
 
@@ -11,19 +11,26 @@ namespace Mews.Fiscalization.Hungary.Models
         /// </summary>
         public int ModificationIndex { get; }
 
+        /// <summary>
+        /// Number of items already reported in the original document + all preceding modification documents.
+        /// </summary>
+        public int ItemIndexOffset { get; }
+
         public ModificationDocument(
             InvoiceNumber number,
             int modificationIndex,
+            int itemIndexOffset,
             InvoiceNumber originalDocumentNumber,
             DateTime issueDate,
             SupplierInfo supplierInfo,
             CustomerInfo customerInfo,
             CurrencyCode currencyCode,
-            ISequentialEnumerable<CorrectionalItem> items)
+            ISequentialEnumerable<InvoiceItem> items)
             : base(number, issueDate, supplierInfo, customerInfo, currencyCode, items)
         {
             OriginalDocumentNumber = originalDocumentNumber;
             ModificationIndex = modificationIndex;
+            ItemIndexOffset = itemIndexOffset;
         }
     }
 }

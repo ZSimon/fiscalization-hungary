@@ -5,8 +5,7 @@ using Mews.Fiscalization.Hungary.Utils;
 
 namespace Mews.Fiscalization.Hungary.Models
 {
-    public abstract class FiscalizationDocument<TItem>
-        where TItem : InvoiceItem
+    public abstract class FiscalizationDocument
     {
         protected FiscalizationDocument(
             InvoiceNumber number,
@@ -14,7 +13,7 @@ namespace Mews.Fiscalization.Hungary.Models
             SupplierInfo supplierInfo,
             CustomerInfo customerInfo,
             CurrencyCode currencyCode,
-            ISequentialEnumerable<TItem> items)
+            ISequentialEnumerable<InvoiceItem> items)
         {
             Number = number;
             IssueDate = issueDate;
