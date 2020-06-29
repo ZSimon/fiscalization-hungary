@@ -5,14 +5,14 @@ using System.Linq;
 
 namespace Mews.Fiscalization.Hungary.Models
 {
-    public sealed class Invoice : FiscalizationDocument
+    public sealed class Invoice : FiscalizationDocument<InvoiceItem>
     {
         public Invoice(
             InvoiceNumber number,
             DateTime issueDate,
             SupplierInfo supplierInfo,
             CustomerInfo customerInfo,
-            IEnumerable<IndexedItem<InvoiceItem>> items,
+            IIndexedEnumerable<InvoiceItem> items,
             DateTime paymentDate,
             CurrencyCode currencyCode,
             bool isSelfBilling = false,
@@ -23,11 +23,9 @@ namespace Mews.Fiscalization.Hungary.Models
             supplierInfo,
             customerInfo,
             currencyCode,
-            GetExchangeRate(items.Select(i => i.Item)),
-            GetTaxSummary(items.Select(i => i.Item))
+            items
         )
         {
-            Items = Check.NonEmpty(items, nameof(items)).AsList();
             DeliveryDate = Items.Max(i => i.Item.ConsumptionDate);
             PaymentDate = paymentDate;
             IsSelfBilling = isSelfBilling;
@@ -35,8 +33,6 @@ namespace Mews.Fiscalization.Hungary.Models
 
             CheckConsistency(this);
         }
-
-        public List<IndexedItem<InvoiceItem>> Items { get; }
 
         public DateTime DeliveryDate { get; }
 

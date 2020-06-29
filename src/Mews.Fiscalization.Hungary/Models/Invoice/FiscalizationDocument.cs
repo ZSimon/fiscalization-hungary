@@ -5,7 +5,8 @@ using Mews.Fiscalization.Hungary.Utils;
 
 namespace Mews.Fiscalization.Hungary.Models
 {
-    public abstract class FiscalizationDocument
+    public abstract class FiscalizationDocument<TItem>
+        where TItem : InvoiceItem
     {
         protected FiscalizationDocument(
             InvoiceNumber number,
@@ -13,16 +14,15 @@ namespace Mews.Fiscalization.Hungary.Models
             SupplierInfo supplierInfo,
             CustomerInfo customerInfo,
             CurrencyCode currencyCode,
-            ExchangeRate exchangeRate,
-            IEnumerable<TaxSummaryItem> taxSummary)
+            IIndexedEnumerable<TItem> items)
         {
             Number = number;
             IssueDate = issueDate;
             SupplierInfo = supplierInfo;
             CustomerInfo = customerInfo;
             CurrencyCode = currencyCode;
-            ExchangeRate = exchangeRate;
-            TaxSummary = taxSummary.AsList();
+            ExchangeRate = GetExchangeRate(items);
+            TaxSummary = GetTaxSummary(items);
         }
 
         public InvoiceNumber Number { get; }
@@ -39,8 +39,11 @@ namespace Mews.Fiscalization.Hungary.Models
 
         public List<TaxSummaryItem> TaxSummary { get; }
 
-        protected static ExchangeRate GetExchangeRate(IEnumerable<InvoiceItem> items)
+        public IIndexedEnumerable<InvoiceItem> Items { get; }
+
+        private ExchangeRate GetExchangeRate(IIndexedEnumerable<InvoiceItem> indexedItems)
         {
+            var items = indexedItems.Select(i => i.Item);
             var totalGrossHuf = items.Sum(i => Math.Abs(i.TotalAmounts.AmountHUF.Gross.Value));
             var totalGross = items.Sum(i => Math.Abs(i.TotalAmounts.Amount.Gross.Value));
             if (totalGross != 0)
@@ -51,8 +54,9 @@ namespace Mews.Fiscalization.Hungary.Models
             return new ExchangeRate(1);
         }
 
-        protected static List<TaxSummaryItem> GetTaxSummary(IEnumerable<InvoiceItem> items)
+        private List<TaxSummaryItem> GetTaxSummary(IIndexedEnumerable<InvoiceItem> indexedItems)
         {
+            var items = indexedItems.Select(i => i.Item);
             var itemsByTaxRate = items.GroupBy(i => i.TotalAmounts.TaxRatePercentage);
             var taxSummaryItems = itemsByTaxRate.Select(g => new TaxSummaryItem(
                 taxRatePercentage: g.Key,

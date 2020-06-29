@@ -64,7 +64,7 @@ namespace Mews.Fiscalization.Hungary
             ).ConfigureAwait(continueOnCapturedContext: false);
         }
 
-        public async Task<ResponseResult<string, ResultErrorCode>> SendInvoicesAsync(ExchangeToken token, IEnumerable<IndexedItem<Invoice>> invoices)
+        public async Task<ResponseResult<string, ResultErrorCode>> SendInvoicesAsync(ExchangeToken token, IIndexedEnumerable<Invoice> invoices)
         {
             var listedInvoices = invoices.AsList();
             if (listedInvoices.Count > ServiceInfo.MaxInvoiceBatchSize)

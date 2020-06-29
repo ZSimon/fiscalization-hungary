@@ -1,10 +1,8 @@
 using System;
-using System.Collections.Generic;
-using System.Linq;
 
 namespace Mews.Fiscalization.Hungary.Models
 {
-    public sealed class ModificationDocument : FiscalizationDocument
+    public sealed class ModificationDocument : FiscalizationDocument<CorrectionalItem>
     {
         public InvoiceNumber OriginalDocumentNumber { get; }
 
@@ -21,8 +19,8 @@ namespace Mews.Fiscalization.Hungary.Models
             SupplierInfo supplierInfo,
             CustomerInfo customerInfo,
             CurrencyCode currencyCode,
-            IEnumerable<IndexedItem<CorrectionalItem>> items)
-            : base(number, issueDate, supplierInfo, customerInfo, currencyCode, GetExchangeRate(items.Select(i => i.Item)), GetTaxSummary(items.Select(i => i.Item)))
+            IIndexedEnumerable<CorrectionalItem> items)
+            : base(number, issueDate, supplierInfo, customerInfo, currencyCode, items)
         {
             OriginalDocumentNumber = originalDocumentNumber;
             ModificationIndex = modificationIndex;
