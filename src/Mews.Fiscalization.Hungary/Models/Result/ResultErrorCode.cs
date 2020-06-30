@@ -5,6 +5,6 @@
         InvalidCredentials = 1,
         MaintenanceMode = 2,
         UnauthorizedUser = 3,
-        InvalidRequestSignature = 4
+        InvalidSigningKey = 4
     }
 }
