@@ -1,6 +1,12 @@
 namespace Mews.Fiscalization.Hungary.Models
 {
-    public sealed class IndexedItem<T>
+    public interface IIndexedItem<out T>
+    {
+        int Index { get; }
+        T Item { get; }
+    }
+
+    public sealed class IndexedItem<T> : IIndexedItem<T>
     {
         public IndexedItem(int index, T item)
         {

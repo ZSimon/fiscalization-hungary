@@ -2,6 +2,7 @@
 using Mews.Fiscalization.Hungary.Utils;
 using System;
 using System.Collections.Generic;
+using System.Linq;
 using System.Net.Http;
 using System.Threading.Tasks;
 
@@ -64,20 +65,19 @@ namespace Mews.Fiscalization.Hungary
             ).ConfigureAwait(continueOnCapturedContext: false);
         }
 
-        public async Task<ResponseResult<string, ResultErrorCode>> SendInvoicesAsync(ExchangeToken token, IEnumerable<IndexedItem<Invoice>> invoices)
+        public async Task<ResponseResult<string, ResultErrorCode>> SendInvoicesAsync(ExchangeToken token, ISequentialEnumerable<Invoice> invoices)
         {
-            var listedInvoices = invoices.AsList();
-            if (listedInvoices.Count > ServiceInfo.MaxInvoiceBatchSize)
+            if (invoices.Count > ServiceInfo.MaxInvoiceBatchSize)
             {
                 throw new ArgumentException($"Max invoice batch size ({ServiceInfo.MaxInvoiceBatchSize}) exceeded.", nameof(invoices));
             }
 
-            if (!listedInvoices.IsSequential(startIndex: 1))
+            if (invoices.StartIndex != 1)
             {
-                throw new ArgumentException("Invoices are not indexed correctly.", nameof(invoices));
+                throw new ArgumentException("Items need to be indexed from 1.", nameof(invoices));
             }
 
-            var request = RequestCreator.CreateManageInvoicesRequest(TechnicalUser, SoftwareIdentification, token, listedInvoices);
+            var request = RequestCreator.CreateManageInvoicesRequest(TechnicalUser, SoftwareIdentification, token, invoices);
             return await Client.ProcessRequestAsync<Dto.ManageInvoiceRequest, Dto.ManageInvoiceResponse, string, ResultErrorCode>(
                 endpoint: "manageInvoice",
                 request: request,

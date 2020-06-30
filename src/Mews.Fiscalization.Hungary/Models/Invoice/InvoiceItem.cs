@@ -3,9 +3,9 @@ using System;
 
 namespace Mews.Fiscalization.Hungary.Models
 {
-    public class Item
+    public sealed class InvoiceItem
     {
-        public Item(
+        public InvoiceItem(
             DateTime consumptionDate,
             ItemAmounts totalAmounts,
             ItemAmounts unitAmounts,
