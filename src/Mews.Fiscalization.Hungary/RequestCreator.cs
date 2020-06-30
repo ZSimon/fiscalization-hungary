@@ -1,7 +1,6 @@
 ﻿using Mews.Fiscalization.Hungary.Models;
 using Mews.Fiscalization.Hungary.Utils;
 using System;
-using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 
@@ -33,14 +32,14 @@ namespace Mews.Fiscalization.Hungary
             return CreateManageInvoicesRequest(user, software, token, Dto.ManageInvoiceOperationType.CREATE, invoices, i => RequestMapper.MapInvoice(i));
         }
 
-        internal static Dto.ManageInvoiceRequest CreateManageInvoicesRequest(TechnicalUser user, SoftwareIdentification software, ExchangeToken token, ISequentialEnumerable<ModificationDocument> modificationDocuments)
+        internal static Dto.ManageInvoiceRequest CreateManageInvoicesRequest(TechnicalUser user, SoftwareIdentification software, ExchangeToken token, ISequentialEnumerable<ModificationInvoice> invoices)
         {
-            return CreateManageInvoicesRequest(user, software, token, Dto.ManageInvoiceOperationType.MODIFY, modificationDocuments, d => RequestMapper.MapModificationDocument(d));
+            return CreateManageInvoicesRequest(user, software, token, Dto.ManageInvoiceOperationType.MODIFY, invoices, d => RequestMapper.MapModificationInvoice(d));
         }
 
-        private static Dto.ManageInvoiceRequest CreateManageInvoicesRequest<T>(TechnicalUser user, SoftwareIdentification software, ExchangeToken token, Dto.ManageInvoiceOperationType operation, ISequentialEnumerable<T> documents, Func<T, Dto.InvoiceData> mapper)
+        private static Dto.ManageInvoiceRequest CreateManageInvoicesRequest<T>(TechnicalUser user, SoftwareIdentification software, ExchangeToken token, Dto.ManageInvoiceOperationType operation, ISequentialEnumerable<T> invoices, Func<T, Dto.InvoiceData> mapper)
         {
-            var operations = documents.Select(item => new Dto.InvoiceOperationType
+            var operations = invoices.Select(item => new Dto.InvoiceOperationType
             {
                 index = item.Index,
                 invoiceData = Encoding.UTF8.GetBytes(XmlManipulator.Serialize(mapper(item.Item))),

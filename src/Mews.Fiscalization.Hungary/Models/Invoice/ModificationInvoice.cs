@@ -2,7 +2,7 @@ using System;
 
 namespace Mews.Fiscalization.Hungary.Models
 {
-    public sealed class ModificationDocument : FiscalizationDocument
+    public sealed class ModificationInvoice : Invoice
     {
         public InvoiceNumber OriginalDocumentNumber { get; }
 
@@ -16,17 +16,20 @@ namespace Mews.Fiscalization.Hungary.Models
         /// </summary>
         public int ItemIndexOffset { get; }
 
-        public ModificationDocument(
+        public ModificationInvoice(
             InvoiceNumber number,
             int modificationIndex,
             int itemIndexOffset,
             InvoiceNumber originalDocumentNumber,
             DateTime issueDate,
+            DateTime paymentDate,
             SupplierInfo supplierInfo,
             CustomerInfo customerInfo,
             CurrencyCode currencyCode,
-            ISequentialEnumerable<InvoiceItem> items)
-            : base(number, issueDate, supplierInfo, customerInfo, currencyCode, items)
+            ISequentialEnumerable<InvoiceItem> items,
+            bool isSelfBilling = false,
+            bool isCashAccounting = false)
+            : base(number, issueDate, paymentDate, supplierInfo, customerInfo, currencyCode, items, isSelfBilling, isCashAccounting)
         {
             OriginalDocumentNumber = originalDocumentNumber;
             ModificationIndex = modificationIndex;

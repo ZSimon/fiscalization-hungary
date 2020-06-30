@@ -71,22 +71,22 @@ namespace Mews.Fiscalization.Hungary
             return await ManageInvoicesAsync(request, invoices);
         }
 
-        public async Task<ResponseResult<string, ResultErrorCode>> SendModificationDocumentsAsync(ExchangeToken token, ISequentialEnumerable<ModificationDocument> modificationDocuments)
+        public async Task<ResponseResult<string, ResultErrorCode>> SendModificationDocumentsAsync(ExchangeToken token, ISequentialEnumerable<ModificationInvoice> invoices)
         {
-            var request = RequestCreator.CreateManageInvoicesRequest(TechnicalUser, SoftwareIdentification, token, modificationDocuments);
-            return await ManageInvoicesAsync(request, modificationDocuments);
+            var request = RequestCreator.CreateManageInvoicesRequest(TechnicalUser, SoftwareIdentification, token, invoices);
+            return await ManageInvoicesAsync(request, invoices);
         }
 
-        private async Task<ResponseResult<string, ResultErrorCode>> ManageInvoicesAsync<TDocument>(Dto.ManageInvoiceRequest request, ISequentialEnumerable<TDocument> documents)
+        private async Task<ResponseResult<string, ResultErrorCode>> ManageInvoicesAsync<TDocument>(Dto.ManageInvoiceRequest request, ISequentialEnumerable<TDocument> invoices)
         {
-            if (documents.Count > ServiceInfo.MaxInvoiceBatchSize)
+            if (invoices.Count > ServiceInfo.MaxInvoiceBatchSize)
             {
-                throw new ArgumentException($"Max invoice batch size ({ServiceInfo.MaxInvoiceBatchSize}) exceeded.", nameof(documents));
+                throw new ArgumentException($"Max invoice batch size ({ServiceInfo.MaxInvoiceBatchSize}) exceeded.", nameof(invoices));
             }
 
-            if (documents.StartIndex != 1)
+            if (invoices.StartIndex != 1)
             {
-                throw new ArgumentException("Items need to be indexed from 1.", nameof(documents));
+                throw new ArgumentException("Items need to be indexed from 1.", nameof(invoices));
             }
 
             return await Client.ProcessRequestAsync<Dto.ManageInvoiceRequest, Dto.ManageInvoiceResponse, string, ResultErrorCode>(
