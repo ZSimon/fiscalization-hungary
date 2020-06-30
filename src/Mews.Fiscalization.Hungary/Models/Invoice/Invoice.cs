@@ -25,15 +25,12 @@ namespace Mews.Fiscalization.Hungary.Models
             items
         )
         {
-            DeliveryDate = Items.Max(i => i.Item.ConsumptionDate);
             PaymentDate = paymentDate;
             IsSelfBilling = isSelfBilling;
             IsCashAccounting = isCashAccounting;
 
             CheckConsistency(this);
         }
-
-        public DateTime DeliveryDate { get; }
 
         public DateTime PaymentDate { get; }
 

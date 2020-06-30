@@ -21,11 +21,14 @@ namespace Mews.Fiscalization.Hungary.Models
             CustomerInfo = customerInfo;
             CurrencyCode = currencyCode;
             Items = items;
+            DeliveryDate = Items.Max(i => i.Item.ConsumptionDate);
             ExchangeRate = GetExchangeRate(items);
             TaxSummary = GetTaxSummary(items);
         }
 
         public InvoiceNumber Number { get; }
+
+        public DateTime DeliveryDate { get; }
 
         public DateTime IssueDate { get; }
 

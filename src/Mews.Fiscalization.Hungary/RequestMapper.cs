@@ -1,5 +1,4 @@
-﻿using System;
-using Mews.Fiscalization.Hungary.Models;
+﻿using Mews.Fiscalization.Hungary.Models;
 using System.Collections.Generic;
 using System.Linq;
 
@@ -7,9 +6,74 @@ namespace Mews.Fiscalization.Hungary
 {
     internal static class RequestMapper
     {
-        internal static Dto.InvoiceData MapModificationDocument(ModificationDocument modificationDocument)
+        internal static Dto.InvoiceData MapModificationDocument(ModificationDocument document)
         {
-            throw new NotImplementedException();
+            var invoiceAmount = Amount.Sum(document.Items.Select(i => i.Item.TotalAmounts.Amount));
+            var invoiceAmountHUF = Amount.Sum(document.Items.Select(i => i.Item.TotalAmounts.AmountHUF));
+            var supplierInfo = document.SupplierInfo;
+            var customerInfo = document.CustomerInfo;
+            return new Dto.InvoiceData
+            {
+                invoiceIssueDate = document.IssueDate,
+                invoiceNumber = document.Number.Value,
+                invoiceMain = new Dto.InvoiceMainType
+                {
+                    Items = new object[]
+                    {
+                        new Dto.InvoiceType
+                        {
+                            invoiceReference = new Dto.InvoiceReferenceType
+                            {
+                                modificationIndex = document.ModificationIndex,
+                                originalInvoiceNumber = document.OriginalDocumentNumber.Value
+                            },
+                            invoiceLines = MapItems(document.Items, document.ItemIndexOffset).ToArray(),
+                            invoiceHead = new Dto.InvoiceHeadType
+                            {
+                                invoiceDetail = new Dto.InvoiceDetailType
+                                {
+                                    exchangeRate = document.ExchangeRate.Value,
+                                    currencyCode = document.CurrencyCode.Value,
+                                    invoiceAppearance = Dto.InvoiceAppearanceType.ELECTRONIC,
+                                    invoiceCategory = Dto.InvoiceCategoryType.AGGREGATE,
+                                    invoiceDeliveryDate = document.DeliveryDate
+                                },
+                                supplierInfo = new Dto.SupplierInfoType
+                                {
+                                    supplierName = supplierInfo.Name.Value,
+                                    supplierAddress = MapAddress(supplierInfo.Address),
+                                    supplierTaxNumber = new Dto.TaxNumberType
+                                    {
+                                        taxpayerId = supplierInfo.TaxpayerId.Value,
+                                        vatCode = supplierInfo.VatCode.Value
+                                    }
+                                },
+                                customerInfo = new Dto.CustomerInfoType
+                                {
+                                    customerName = customerInfo.Name.Value,
+                                    customerAddress = MapAddress(customerInfo.Address),
+                                    customerTaxNumber = new Dto.TaxNumberType
+                                    {
+                                        taxpayerId = customerInfo.TaxpayerId.Value
+                                    }
+                                },
+                            },
+                            invoiceSummary = new Dto.SummaryType
+                            {
+                                summaryGrossData = new Dto.SummaryGrossDataType
+                                {
+                                    invoiceGrossAmount = invoiceAmount.Gross.Value,
+                                    invoiceGrossAmountHUF = invoiceAmountHUF.Gross.Value
+                                },
+                                Items = new object[]
+                                {
+                                    MapTaxSummary(document, invoiceAmount, invoiceAmountHUF)
+                                }
+                            }
+                        }
+                    }
+                }
+            };
         }
 
         internal static Dto.InvoiceData MapInvoice(Invoice invoice)
@@ -80,7 +144,7 @@ namespace Mews.Fiscalization.Hungary
             };
         }
 
-        private static Dto.SummaryNormalType MapTaxSummary(Invoice invoice, Amount amount, Amount amountHUF)
+        private static Dto.SummaryNormalType MapTaxSummary(FiscalizationDocument document, Amount amount, Amount amountHUF)
         {
             return new Dto.SummaryNormalType
             {
@@ -88,7 +152,7 @@ namespace Mews.Fiscalization.Hungary
                 invoiceNetAmountHUF = amountHUF.Net.Value,
                 invoiceVatAmount = amount.Tax.Value,
                 invoiceVatAmountHUF = amountHUF.Tax.Value,
-                summaryByVatRate = invoice.TaxSummary.Select(s => MapSummaryByVatRate(s)).ToArray()
+                summaryByVatRate = document.TaxSummary.Select(s => MapSummaryByVatRate(s)).ToArray()
             };
         }
 
@@ -144,7 +208,7 @@ namespace Mews.Fiscalization.Hungary
             };
         }
 
-        private static IEnumerable<Dto.LineType> MapItems(ISequentialEnumerable<InvoiceItem> items)
+        private static IEnumerable<Dto.LineType> MapItems(ISequentialEnumerable<InvoiceItem> items, int? modificationIndexOffset = null)
         {
             return items.Select(i => new Dto.LineType
             {
@@ -165,8 +229,18 @@ namespace Mews.Fiscalization.Hungary
                     lineExchangeRateSpecified = true,
                     lineExchangeRate = i.Item.ExchangeRate?.Value ?? 0m,
                     lineDeliveryDate = i.Item.ConsumptionDate
-                }
+                },
+                lineModificationReference = modificationIndexOffset.HasValue ? GetLineModificationReference(i, modificationIndexOffset.Value) : null
             });
+        }
+
+        private static Dto.LineModificationReferenceType GetLineModificationReference(IIndexedItem<InvoiceItem> item, int modificationIndexOffset)
+        {
+            return new Dto.LineModificationReferenceType
+            {
+                lineNumberReference = (item.Index + modificationIndexOffset).ToString(),
+                lineOperation = Dto.LineOperationType.CREATE
+            };
         }
 
         private static Dto.VatRateType GetVatRate(decimal? taxRatePercentage)
