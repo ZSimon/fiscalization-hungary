@@ -30,13 +30,23 @@ namespace Mews.Fiscalization.Hungary
 
         internal static Dto.ManageInvoiceRequest CreateManageInvoicesRequest(TechnicalUser user, SoftwareIdentification software, ExchangeToken token, ISequentialEnumerable<Invoice> invoices)
         {
-            var operationTypes = invoices.Select(indexedInvoice => new Dto.InvoiceOperationType
+            return CreateManageInvoicesRequest(user, software, token, Dto.ManageInvoiceOperationType.CREATE, invoices, i => RequestMapper.MapInvoice(i));
+        }
+
+        internal static Dto.ManageInvoiceRequest CreateManageInvoicesRequest(TechnicalUser user, SoftwareIdentification software, ExchangeToken token, ISequentialEnumerable<ModificationDocument> modificationDocuments)
+        {
+            return CreateManageInvoicesRequest(user, software, token, Dto.ManageInvoiceOperationType.MODIFY, modificationDocuments, d => RequestMapper.MapModificationDocument(d));
+        }
+
+        private static Dto.ManageInvoiceRequest CreateManageInvoicesRequest<T>(TechnicalUser user, SoftwareIdentification software, ExchangeToken token, Dto.ManageInvoiceOperationType operation, ISequentialEnumerable<T> documents, Func<T, Dto.InvoiceData> mapper)
+        {
+            var operations = documents.Select(item => new Dto.InvoiceOperationType
             {
-                index = indexedInvoice.Index,
-                invoiceData = Encoding.UTF8.GetBytes(XmlManipulator.Serialize(RequestMapper.MapInvoice(indexedInvoice.Item))),
-                invoiceOperation = Dto.ManageInvoiceOperationType.CREATE
+                index = item.Index,
+                invoiceData = Encoding.UTF8.GetBytes(XmlManipulator.Serialize(mapper(item.Item))),
+                invoiceOperation = operation
             });
-            var invoiceHashes = operationTypes.Select(t => Sha512.GetSha3Hash($"{t.invoiceOperation}{Convert.ToBase64String(t.invoiceData)}"));
+            var invoiceHashes = operations.Select(t => Sha512.GetSha3Hash($"{t.invoiceOperation}{Convert.ToBase64String(t.invoiceData)}"));
             var invoiceSignatureData = string.Join("", invoiceHashes);
 
             var request = CreateRequest<Dto.ManageInvoiceRequest>(user, software, invoiceSignatureData);
@@ -44,7 +54,7 @@ namespace Mews.Fiscalization.Hungary
             request.invoiceOperations = new Dto.InvoiceOperationListType
             {
                 compressedContent = false,
-                invoiceOperation = operationTypes.ToArray()
+                invoiceOperation = operations.ToArray()
             };
 
             return request;

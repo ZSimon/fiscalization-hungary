@@ -66,16 +66,27 @@ namespace Mews.Fiscalization.Hungary
 
         public async Task<ResponseResult<string, ResultErrorCode>> SendInvoicesAsync(ExchangeToken token, ISequentialEnumerable<Invoice> invoices)
         {
-            if (invoices.Count > ServiceInfo.MaxInvoiceBatchSize)
+            var request = RequestCreator.CreateManageInvoicesRequest(TechnicalUser, SoftwareIdentification, token, invoices);
+            return await ManageInvoicesAsync(request, invoices);
+        }
+
+        public async Task<ResponseResult<string, ResultErrorCode>> SendModificationDocumentsAsync(ExchangeToken token, ISequentialEnumerable<ModificationDocument> modificationDocuments)
+        {
+            var request = RequestCreator.CreateManageInvoicesRequest(TechnicalUser, SoftwareIdentification, token, modificationDocuments);
+            return await ManageInvoicesAsync(request, modificationDocuments);
+        }
+
+        private async Task<ResponseResult<string, ResultErrorCode>> ManageInvoicesAsync<TDocument>(Dto.ManageInvoiceRequest request, ISequentialEnumerable<TDocument> documents)
+        {
+            if (documents.Count > ServiceInfo.MaxInvoiceBatchSize)
             {
-                throw new ArgumentException($"Max invoice batch size ({ServiceInfo.MaxInvoiceBatchSize}) exceeded.", nameof(invoices));
+                throw new ArgumentException($"Max invoice batch size ({ServiceInfo.MaxInvoiceBatchSize}) exceeded.", nameof(documents));
             }
 
-            var request = RequestCreator.CreateManageInvoicesRequest(TechnicalUser, SoftwareIdentification, token, invoices);
             return await Client.ProcessRequestAsync<Dto.ManageInvoiceRequest, Dto.ManageInvoiceResponse, string, ResultErrorCode>(
                 endpoint: "manageInvoice",
                 request: request,
-                successFunc: response => ModelMapper.MapInvoices(response)
+                successFunc: response => ModelMapper.MapManageInvoice(response)
             ).ConfigureAwait(continueOnCapturedContext: false);
         }
     }

@@ -1,4 +1,5 @@
-﻿using Mews.Fiscalization.Hungary.Models;
+﻿using System;
+using Mews.Fiscalization.Hungary.Models;
 using System.Collections.Generic;
 using System.Linq;
 
@@ -6,6 +7,11 @@ namespace Mews.Fiscalization.Hungary
 {
     internal static class RequestMapper
     {
+        internal static Dto.InvoiceData MapModificationDocument(ModificationDocument modificationDocument)
+        {
+            throw new NotImplementedException();
+        }
+
         internal static Dto.InvoiceData MapInvoice(Invoice invoice)
         {
             var invoiceAmount = Amount.Sum(invoice.Items.Select(i => i.Item.TotalAmounts.Amount));
