@@ -2,6 +2,7 @@
 using Mews.Fiscalization.Hungary.Utils;
 using System;
 using System.Collections.Generic;
+using System.Linq;
 using System.Net.Http;
 using System.Threading.Tasks;
 
@@ -69,6 +70,11 @@ namespace Mews.Fiscalization.Hungary
             if (invoices.Count > ServiceInfo.MaxInvoiceBatchSize)
             {
                 throw new ArgumentException($"Max invoice batch size ({ServiceInfo.MaxInvoiceBatchSize}) exceeded.", nameof(invoices));
+            }
+
+            if (invoices.StartIndex != 1)
+            {
+                throw new ArgumentException("Items need to be indexed from 1.", nameof(invoices));
             }
 
             var request = RequestCreator.CreateManageInvoicesRequest(TechnicalUser, SoftwareIdentification, token, invoices);
