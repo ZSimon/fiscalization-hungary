@@ -1,3 +1,4 @@
+using System;
 using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
@@ -8,6 +9,10 @@ namespace Mews.Fiscalization.Hungary.Models
     public interface ISequentialEnumerable<out T> : IReadOnlyList<IIndexedItem<T>>
     {
         IEnumerable<T> Items { get; }
+
+        IEnumerable<int> Indexes { get; }
+
+        int StartIndex { get; }
     }
 
     public sealed class SequentialEnumerable<T> : ISequentialEnumerable<T>
@@ -19,9 +24,24 @@ namespace Mews.Fiscalization.Hungary.Models
             get { return Values.Select(v => v.Item); }
         }
 
+        public IEnumerable<int> Indexes
+        {
+            get { return Values.Select(v => v.Index); }
+        }
+
+        public int StartIndex
+        {
+            get { return Indexes.Min(); }
+        }
+
         public SequentialEnumerable(IEnumerable<IndexedItem<T>> indexedItems)
         {
             Values = indexedItems.AsList();
+
+            if (!Values.NonEmpty() || !Values.IsSequential(startIndex: Indexes.Min()))
+            {
+                throw new ArgumentException("Item indexes are not sequential.", nameof(indexedItems));
+            }
         }
 
         public IEnumerator<IIndexedItem<T>> GetEnumerator()
