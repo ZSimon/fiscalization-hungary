@@ -67,6 +67,18 @@ namespace Mews.Fiscalization.Hungary
 
         public async Task<ResponseResult<string, ResultErrorCode>> SendInvoicesAsync(ExchangeToken token, ISequentialEnumerable<Invoice> invoices)
         {
+            var request = RequestCreator.CreateManageInvoicesRequest(TechnicalUser, SoftwareIdentification, token, invoices);
+            return await ManageInvoicesAsync(request, invoices);
+        }
+
+        public async Task<ResponseResult<string, ResultErrorCode>> SendModificationDocumentsAsync(ExchangeToken token, ISequentialEnumerable<ModificationInvoice> invoices)
+        {
+            var request = RequestCreator.CreateManageInvoicesRequest(TechnicalUser, SoftwareIdentification, token, invoices);
+            return await ManageInvoicesAsync(request, invoices);
+        }
+
+        private async Task<ResponseResult<string, ResultErrorCode>> ManageInvoicesAsync<TDocument>(Dto.ManageInvoiceRequest request, ISequentialEnumerable<TDocument> invoices)
+        {
             if (invoices.Count > ServiceInfo.MaxInvoiceBatchSize)
             {
                 throw new ArgumentException($"Max invoice batch size ({ServiceInfo.MaxInvoiceBatchSize}) exceeded.", nameof(invoices));
@@ -77,11 +89,10 @@ namespace Mews.Fiscalization.Hungary
                 throw new ArgumentException("Items need to be indexed from 1.", nameof(invoices));
             }
 
-            var request = RequestCreator.CreateManageInvoicesRequest(TechnicalUser, SoftwareIdentification, token, invoices);
             return await Client.ProcessRequestAsync<Dto.ManageInvoiceRequest, Dto.ManageInvoiceResponse, string, ResultErrorCode>(
                 endpoint: "manageInvoice",
                 request: request,
-                successFunc: response => ModelMapper.MapInvoices(response)
+                successFunc: response => ModelMapper.MapManageInvoice(response)
             ).ConfigureAwait(continueOnCapturedContext: false);
         }
     }

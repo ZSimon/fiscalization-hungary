@@ -66,7 +66,7 @@ namespace Mews.Fiscalization.Hungary
             );
         }
 
-        internal static ResponseResult<string, ResultErrorCode> MapInvoices(Dto.ManageInvoiceResponse response)
+        internal static ResponseResult<string, ResultErrorCode> MapManageInvoice(Dto.ManageInvoiceResponse response)
         {
             return new ResponseResult<string, ResultErrorCode>(successResult: response.transactionId);
         }

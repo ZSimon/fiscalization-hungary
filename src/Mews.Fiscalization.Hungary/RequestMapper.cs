@@ -6,72 +6,96 @@ namespace Mews.Fiscalization.Hungary
 {
     internal static class RequestMapper
     {
+        internal static Dto.InvoiceData MapModificationInvoice(ModificationInvoice invoice)
+        {
+            var lines = MapItems(invoice.Items, invoice.ItemIndexOffset);
+            var invoiceReference = new Dto.InvoiceReferenceType
+            {
+                modificationIndex = invoice.ModificationIndex,
+                originalInvoiceNumber = invoice.OriginalDocumentNumber.Value
+            };
+
+            var invoiceDto = GetCommonInvoice(invoice, lines, invoiceReference);
+            return GetCommonInvoiceData(invoice, invoiceDto);
+        }
+
         internal static Dto.InvoiceData MapInvoice(Invoice invoice)
         {
-            var invoiceAmount = Amount.Sum(invoice.Items.Select(i => i.Item.TotalAmounts.Amount));
-            var invoiceAmountHUF = Amount.Sum(invoice.Items.Select(i => i.Item.TotalAmounts.AmountHUF));
-            var supplierInfo = invoice.SupplierInfo;
-            var customerInfo = invoice.CustomerInfo;
+            var lines = MapItems(invoice.Items);
+            var invoiceDto = GetCommonInvoice(invoice, lines);
+            return GetCommonInvoiceData(invoice, invoiceDto);
+        }
+
+        private static Dto.InvoiceData GetCommonInvoiceData(Invoice invoice, Dto.InvoiceType invoiceDto)
+        {
             return new Dto.InvoiceData
             {
                 invoiceIssueDate = invoice.IssueDate,
                 invoiceNumber = invoice.Number.Value,
                 invoiceMain = new Dto.InvoiceMainType
                 {
+                    Items = new object[] { invoiceDto }
+                }
+            };
+        }
+
+        private static Dto.InvoiceType GetCommonInvoice(Invoice invoice, IEnumerable<Dto.LineType> lines, Dto.InvoiceReferenceType invoiceReference = null)
+        {
+            var invoiceAmount = Amount.Sum(invoice.Items.Select(i => i.Item.TotalAmounts.Amount));
+            var invoiceAmountHUF = Amount.Sum(invoice.Items.Select(i => i.Item.TotalAmounts.AmountHUF));
+            var supplierInfo = invoice.SupplierInfo;
+            var customerInfo = invoice.CustomerInfo;
+            return new Dto.InvoiceType
+            {
+                invoiceReference = invoiceReference,
+                invoiceLines = lines.ToArray(),
+                invoiceHead = new Dto.InvoiceHeadType
+                {
+                    invoiceDetail = new Dto.InvoiceDetailType
+                    {
+                        exchangeRate = invoice.ExchangeRate.Value,
+                        currencyCode = invoice.CurrencyCode.Value,
+                        invoiceAppearance = Dto.InvoiceAppearanceType.ELECTRONIC,
+                        invoiceCategory = Dto.InvoiceCategoryType.AGGREGATE,
+                        invoiceDeliveryDate = invoice.DeliveryDate,
+                        paymentDate = invoice.PaymentDate,
+                        selfBillingIndicator = invoice.IsSelfBilling,
+                        cashAccountingIndicator = invoice.IsCashAccounting
+                    },
+                    supplierInfo = new Dto.SupplierInfoType
+                    {
+                        supplierName = supplierInfo.Name.Value,
+                        supplierAddress = MapAddress(supplierInfo.Address),
+                        supplierTaxNumber = new Dto.TaxNumberType
+                        {
+                            taxpayerId = supplierInfo.TaxpayerId.Value,
+                            vatCode = supplierInfo.VatCode.Value
+                        }
+                    },
+                    customerInfo = new Dto.CustomerInfoType
+                    {
+                        customerName = customerInfo.Name.Value,
+                        customerAddress = MapAddress(customerInfo.Address),
+                        customerTaxNumber = new Dto.TaxNumberType
+                        {
+                            taxpayerId = customerInfo.TaxpayerId.Value
+                        }
+                    },
+                },
+                invoiceSummary = new Dto.SummaryType
+                {
+                    summaryGrossData = new Dto.SummaryGrossDataType
+                    {
+                        invoiceGrossAmount = invoiceAmount.Gross.Value,
+                        invoiceGrossAmountHUF = invoiceAmountHUF.Gross.Value
+                    },
                     Items = new object[]
                     {
-                        new Dto.InvoiceType
-                        {
-                            invoiceLines = MapItems(invoice.Items).ToArray(),
-                            invoiceHead = new Dto.InvoiceHeadType
-                            {
-                                invoiceDetail = new Dto.InvoiceDetailType
-                                {
-                                    exchangeRate = invoice.ExchangeRate.Value,
-                                    currencyCode = invoice.CurrencyCode.Value,
-                                    invoiceAppearance = Dto.InvoiceAppearanceType.ELECTRONIC,
-                                    invoiceCategory = Dto.InvoiceCategoryType.AGGREGATE,
-                                    invoiceDeliveryDate = invoice.DeliveryDate,
-                                    paymentDate = invoice.PaymentDate,
-                                    selfBillingIndicator = invoice.IsSelfBilling,
-                                    cashAccountingIndicator = invoice.IsCashAccounting
-                                },
-                                supplierInfo = new Dto.SupplierInfoType
-                                {
-                                    supplierName = supplierInfo.Name.Value,
-                                    supplierAddress = MapAddress(supplierInfo.Address),
-                                    supplierTaxNumber = new Dto.TaxNumberType
-                                    {
-                                        taxpayerId = supplierInfo.TaxpayerId.Value,
-                                        vatCode = supplierInfo.VatCode.Value
-                                    }
-                                },
-                                customerInfo = new Dto.CustomerInfoType
-                                {
-                                    customerName = customerInfo.Name.Value,
-                                    customerAddress = MapAddress(customerInfo.Address),
-                                    customerTaxNumber = new Dto.TaxNumberType
-                                    {
-                                        taxpayerId = customerInfo.TaxpayerId.Value
-                                    }
-                                },
-                            },
-                            invoiceSummary = new Dto.SummaryType
-                            {
-                                summaryGrossData = new Dto.SummaryGrossDataType
-                                {
-                                    invoiceGrossAmount = invoiceAmount.Gross.Value,
-                                    invoiceGrossAmountHUF = invoiceAmountHUF.Gross.Value
-                                },
-                                Items = new object[]
-                                {
-                                    MapTaxSummary(invoice, invoiceAmount, invoiceAmountHUF)
-                                }
-                            }
-                        }
+                        MapTaxSummary(invoice, invoiceAmount, invoiceAmountHUF)
                     }
                 }
             };
+
         }
 
         private static Dto.SummaryNormalType MapTaxSummary(Invoice invoice, Amount amount, Amount amountHUF)
@@ -138,7 +162,7 @@ namespace Mews.Fiscalization.Hungary
             };
         }
 
-        private static IEnumerable<Dto.LineType> MapItems(ISequentialEnumerable<InvoiceItem> items)
+        private static IEnumerable<Dto.LineType> MapItems(ISequentialEnumerable<InvoiceItem> items, int? modificationIndexOffset = null)
         {
             return items.Select(i => new Dto.LineType
             {
@@ -159,8 +183,18 @@ namespace Mews.Fiscalization.Hungary
                     lineExchangeRateSpecified = true,
                     lineExchangeRate = i.Item.ExchangeRate?.Value ?? 0m,
                     lineDeliveryDate = i.Item.ConsumptionDate
-                }
+                },
+                lineModificationReference = modificationIndexOffset.HasValue ? GetLineModificationReference(i, modificationIndexOffset.Value) : null
             });
+        }
+
+        private static Dto.LineModificationReferenceType GetLineModificationReference(IIndexedItem<InvoiceItem> item, int modificationIndexOffset)
+        {
+            return new Dto.LineModificationReferenceType
+            {
+                lineNumberReference = (item.Index + modificationIndexOffset).ToString(),
+                lineOperation = Dto.LineOperationType.CREATE
+            };
         }
 
         private static Dto.VatRateType GetVatRate(decimal? taxRatePercentage)
