@@ -30,11 +30,14 @@ namespace Mews.Fiscalization.Hungary.Models
                 case "INVALID_SECURITY_USER":
                 case "NOT_REGISTERED_CUSTOMER":
                 case "INVALID_CUSTOMER":
+                case "INVALID_USER_RELATION":
                     return ResultErrorCode.InvalidCredentials;
                 case "MAINTENANCE_MODE":
                     return ResultErrorCode.MaintenanceMode;
+                case "FORBIDDEN":
+                    return ResultErrorCode.UnauthorizedUser;
                 case "INVALID_REQUEST_SIGNATURE":
-                    throw new InvalidOperationException("Invalid request signature.");
+                    return ResultErrorCode.InvalidSigningKey;
                 default:
                     throw new NotImplementedException($"Error code: {errorCode} is not implemented.");
             }
