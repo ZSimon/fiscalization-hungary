@@ -71,5 +71,10 @@ namespace Mews.Fiscalization.Hungary.Models
         {
             return new SequentialEnumerable<T>(source.Select((item, index) => new IndexedItem<T>(startIndex + index, item)));
         }
+
+        public static ISequentialEnumerable<T> Create<T>(IEnumerable<IndexedItem<T>> source)
+        {
+            return new SequentialEnumerable<T>(source);
+        }
     }
 }

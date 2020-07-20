@@ -12,7 +12,8 @@ namespace Mews.Fiscalization.Hungary
             var invoiceReference = new Dto.InvoiceReferenceType
             {
                 modificationIndex = invoice.ModificationIndex,
-                originalInvoiceNumber = invoice.OriginalDocumentNumber.Value
+                originalInvoiceNumber = invoice.OriginalDocumentNumber.Value,
+                modifyWithoutMaster = invoice.ModifyWithoutMaster
             };
 
             var invoiceDto = GetCommonInvoice(invoice, lines, invoiceReference);
