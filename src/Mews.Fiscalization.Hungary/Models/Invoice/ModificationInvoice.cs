@@ -16,6 +16,11 @@ namespace Mews.Fiscalization.Hungary.Models
         /// </summary>
         public int ItemIndexOffset { get; }
 
+        /// <summary>
+        /// Indication of a modification for a base invoice with no data reporting completed at the time of the modification (no original invoice).
+        /// </summary>
+        public bool ModifyWithoutMaster { get; }
+
         public ModificationInvoice(
             InvoiceNumber number,
             int modificationIndex,
@@ -28,12 +33,14 @@ namespace Mews.Fiscalization.Hungary.Models
             CurrencyCode currencyCode,
             ISequentialEnumerable<InvoiceItem> items,
             bool isSelfBilling = false,
-            bool isCashAccounting = false)
+            bool isCashAccounting = false,
+            bool modifyWithoutMaster = false)
             : base(number, issueDate, paymentDate, supplierInfo, customerInfo, currencyCode, items, isSelfBilling, isCashAccounting)
         {
             OriginalDocumentNumber = originalDocumentNumber;
             ModificationIndex = modificationIndex;
             ItemIndexOffset = itemIndexOffset;
+            ModifyWithoutMaster = modifyWithoutMaster;
         }
     }
 }
