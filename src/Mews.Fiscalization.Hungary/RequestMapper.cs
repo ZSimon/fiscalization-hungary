@@ -42,8 +42,8 @@ namespace Mews.Fiscalization.Hungary
 
         private static Dto.InvoiceType GetCommonInvoice(Invoice invoice, IEnumerable<Dto.LineType> lines, Dto.InvoiceReferenceType invoiceReference = null)
         {
-            var invoiceAmount = Amount.Sum(invoice.Items.Select(i => i.Item.TotalAmounts.Amount));
-            var invoiceAmountHUF = Amount.Sum(invoice.Items.Select(i => i.Item.TotalAmounts.AmountHUF));
+            var invoiceAmount = Amount.Sum(invoice.Items.Select(i => (i.Item.TotalAmounts.Amount, i.Item.Quantity)));
+            var invoiceAmountHUF = Amount.Sum(invoice.Items.Select(i => (i.Item.TotalAmounts.AmountHUF, i.Item.Quantity)));
             var supplierInfo = invoice.SupplierInfo;
             var customerInfo = invoice.CustomerInfo;
             return new Dto.InvoiceType
