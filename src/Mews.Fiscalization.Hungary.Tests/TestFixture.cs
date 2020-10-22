@@ -11,7 +11,7 @@ namespace Mews.Fiscalization.Hungary.Tests
         private static readonly TaxPayerId TaxPayerId = new TaxPayerId(Environment.GetEnvironmentVariable("tax_payer_id") ?? "INSERT_TAX_PAYER_ID");
         private static readonly EncryptionKey EncryptionKey = new EncryptionKey(Environment.GetEnvironmentVariable("encryption_key") ?? "INSERT_ENCRYPTION_KEY");
 
-        public static NavClient GetClient()
+        public static NavClient GetNavClient()
         {
             var technicalUser = new TechnicalUser(
                 login: Login,

@@ -10,9 +10,9 @@ namespace Mews.Fiscalization.Hungary.Tests
     public class InvoiceTests
     {
         [Test]
-        public async Task Test()
+        public async Task SendInvoiceSucceeds()
         {
-            var navClient = TestFixture.GetClient();
+            var navClient = TestFixture.GetNavClient();
             var exchangeToken = await navClient.GetExchangeTokenAsync();
             var invoiceTransactionId = await navClient.SendInvoicesAsync(exchangeToken.SuccessResult, SequentialEnumerable.FromPreordered(new[] { GetInvoice() }, startIndex: 1));
 
@@ -28,9 +28,9 @@ namespace Mews.Fiscalization.Hungary.Tests
         }
 
         [Test]
-        public async Task CorrectionInvoiceSucceeds()
+        public async Task SendCorrectionInvoiceSucceeds()
         {
-            var navClient = TestFixture.GetClient();
+            var navClient = TestFixture.GetNavClient();
             var exchangeToken = await navClient.GetExchangeTokenAsync();
             var response = await navClient.SendModificationDocumentsAsync(
                 token: exchangeToken.SuccessResult,
@@ -166,8 +166,7 @@ namespace Mews.Fiscalization.Hungary.Tests
                     net: new AmountValue(amountHUF),
                     gross: new AmountValue(amountHUF),
                     tax: new AmountValue(amountHUF)
-                ),
-                taxRatePercentage: 0
+                )
             );
         }
 
