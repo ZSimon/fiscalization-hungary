@@ -10,7 +10,6 @@
     <RepositoryType>Git</RepositoryType>
     <PackageTags>fiscalization hungary nav</PackageTags>
     <Description>Client for NAV - Online Szamla.</Description>
-    <PackageVersion>1.0.3</PackageVersion>
     <GeneratePackageOnBuild>true</GeneratePackageOnBuild>
   </PropertyGroup>
   
