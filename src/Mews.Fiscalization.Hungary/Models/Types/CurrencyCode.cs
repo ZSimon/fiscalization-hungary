@@ -28,14 +28,9 @@ namespace Mews.Fiscalization.Hungary.Models
         {
             return StringValidations.NonEmptyNorWhitespace(value).FlatMap(v =>
             {
-                var validCurrencyCode = StringValidations.RegexMatch(value, new Regex("[A-Z]{3}"));
+                var validCurrencyCode = StringValidations.RegexMatch(v, new Regex("[A-Z]{3}"));
                 return validCurrencyCode.Map(c => new CurrencyCode(c));
             });
-        }
-
-        public static CurrencyCode CreateUnsafe(string value)
-        {
-            return Create(value).Get(error => new ArgumentException(error.Message));
         }
     }
 }

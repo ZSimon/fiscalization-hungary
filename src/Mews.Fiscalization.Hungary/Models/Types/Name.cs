@@ -1,6 +1,5 @@
 ﻿using FuncSharp;
 using Mews.Fiscalization.Core.Model;
-using System;
 using System.Text.RegularExpressions;
 
 namespace Mews.Fiscalization.Hungary.Models
@@ -18,14 +17,9 @@ namespace Mews.Fiscalization.Hungary.Models
         {
             return StringValidations.LengthInRange(value, 1, 512).FlatMap(v =>
             {
-                var validName = StringValidations.RegexMatch(value, new Regex(".*[^\\s]."));
+                var validName = StringValidations.RegexMatch(v, new Regex(".*[^\\s]."));
                 return validName.Map(n => new Name(n));
             });
-        }
-
-        public static Name CreateUnsafe(string value)
-        {
-            return Create(value).Get(error => new ArgumentException(error.Message));
         }
     }
 }

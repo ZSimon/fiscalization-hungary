@@ -80,7 +80,7 @@ namespace Mews.Fiscalization.Hungary.Tests
                 customerInfo: GetCustomerInfo(),
                 items: Sequence.FromPreordered(items, startIndex: 1).Get(),
                 paymentDate: new DateTime(2020, 06, 14),
-                currencyCode: CurrencyCode.CreateUnsafe("EUR")
+                currencyCode: CurrencyCode.Create("EUR").Success.Get()
             );
         }
 
@@ -95,7 +95,7 @@ namespace Mews.Fiscalization.Hungary.Tests
                 measurementUnit: MeasurementUnit.Night,
                 quantity: -1,
                 unitAmounts: unitAmounts,
-                exchangeRate: ExchangeRate.CreateUnsafe(300)
+                exchangeRate: ExchangeRate.Create(300).Success.Get()
             );
 
             var amounts1 = GetItemAmounts(amount: 100, exchangeRate: 300);
@@ -129,7 +129,7 @@ namespace Mews.Fiscalization.Hungary.Tests
         {
             return new CustomerInfo(
                 taxpayerId: TaxpayerIdentificationNumber.Create(Countries.GetByCode("HU").Get(), "14750636").Success.Get(),
-                name: Name.CreateUnsafe("Vev Kft"),
+                name: Name.Create("Vev Kft").Success.Get(),
                 address: GetAddress()
             );
         }
@@ -138,8 +138,8 @@ namespace Mews.Fiscalization.Hungary.Tests
         {
             return new SupplierInfo(
                 taxpayerId: TaxpayerIdentificationNumber.Create(Countries.GetByCode("HU").Get(), "14750636").Success.Get(),
-                vatCode: VatCode.CreateUnsafe("2"),
-                name: Name.CreateUnsafe("BUDAPESTI MSZAKI S GAZDASGTUDOMNYI EGYETEM"),
+                vatCode: VatCode.Create("2").Success.Get(),
+                name: Name.Create("BUDAPESTI MSZAKI S GAZDASGTUDOMNYI EGYETEM").Success.Get(),
                 address: GetAddress()
             );
         }

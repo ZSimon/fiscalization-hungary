@@ -17,7 +17,7 @@ namespace Mews.Fiscalization.Hungary.Models
         {
             return StringValidations.NonEmptyNorWhitespace(value).FlatMap(v =>
             {
-                var validSigningKey = StringValidations.RegexMatch(value, new Regex("^[0-9A-Za-z]{2}[-]{1}[0-9A-Za-z]{4}[-]{1}[0-9A-Za-z]{24}$"));
+                var validSigningKey = StringValidations.RegexMatch(v, new Regex("^[0-9A-Za-z]{2}[-]{1}[0-9A-Za-z]{4}[-]{1}[0-9A-Za-z]{24}$"));
                 return validSigningKey.Map(k => new SigningKey(k));
             });
         }

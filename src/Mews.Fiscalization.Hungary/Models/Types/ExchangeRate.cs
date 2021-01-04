@@ -29,7 +29,7 @@ namespace Mews.Fiscalization.Hungary.Models
             });
         }
 
-        public static ExchangeRate CreateUnsafe(decimal value)
+        internal static ExchangeRate CreateUnsafe(decimal value)
         {
             return Create(value).Get(error => new ArgumentException(error.Message));
         }

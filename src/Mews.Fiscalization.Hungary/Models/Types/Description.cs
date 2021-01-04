@@ -17,7 +17,7 @@ namespace Mews.Fiscalization.Hungary.Models
         {
             return StringValidations.LengthInRange(value, 1, 512).FlatMap(v =>
             {
-                var validDescription = StringValidations.RegexMatch(value, new Regex(".*[^\\s]."));
+                var validDescription = StringValidations.RegexMatch(v, new Regex(".*[^\\s]."));
                 return validDescription.Map(d => new Description(d));
             });
         }
