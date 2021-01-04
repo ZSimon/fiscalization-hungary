@@ -59,7 +59,7 @@ namespace Mews.Fiscalization.Hungary.Tests
                     measurementUnit: MeasurementUnit.Night,
                     quantity: 15,
                     unitAmounts: unitAmount1,
-                    exchangeRate: ExchangeRate.CreateUnsafe(1)
+                    exchangeRate: ExchangeRate.Create(1).Success.Get()
                 ),
                 new InvoiceItem(
                     consumptionDate: new DateTime(2020, 06, 30),
@@ -68,7 +68,7 @@ namespace Mews.Fiscalization.Hungary.Tests
                     measurementUnit: MeasurementUnit.Night,
                     quantity: -15,
                     unitAmounts: unitAmount1,
-                    exchangeRate: ExchangeRate.CreateUnsafe(1)
+                    exchangeRate: ExchangeRate.Create(1).Success.Get()
                 ),
             };
 
@@ -107,7 +107,7 @@ namespace Mews.Fiscalization.Hungary.Tests
                 measurementUnit: MeasurementUnit.Night,
                 quantity: 1,
                 unitAmounts: unitAmounts1,
-                exchangeRate: ExchangeRate.CreateUnsafe(300)
+                exchangeRate: ExchangeRate.Create(300).Success.Get()
             );
 
             return new ModificationInvoice(
@@ -115,7 +115,7 @@ namespace Mews.Fiscalization.Hungary.Tests
                 supplierInfo: GetSupplierInfo(),
                 customerInfo: GetCustomerInfo(),
                 items: Sequence.FromPreordered(new[] { item, item1 }, startIndex: 1).Get(),
-                currencyCode: CurrencyCode.CreateUnsafe("USD"),
+                currencyCode: CurrencyCode.Create("USD").Success.Get(),
                 issueDate: new DateTime(2020, 08, 31),
                 paymentDate: new DateTime(2020, 08, 31),
                 itemIndexOffset: 4,
