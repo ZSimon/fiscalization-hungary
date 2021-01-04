@@ -1,19 +1,25 @@
-﻿using Mews.Fiscalization.Core.Model;
+﻿using FuncSharp;
+using Mews.Fiscalization.Core.Model;
+using System.Text.RegularExpressions;
 
 namespace Mews.Fiscalization.Hungary.Models
 {
-    public sealed class EncryptionKey : LimitedString
+    public sealed class EncryptionKey
     {
-        private static readonly StringLimitation Limitation = new StringLimitation(pattern: "^[0-9A-Za-z]{16}$", allowEmptyOrWhiteSpace: false);
-
-        public EncryptionKey(string value)
-            : base(value, Limitation)
+        private EncryptionKey(string value)
         {
+            Value = value;
         }
 
-        public static bool IsValid(string value)
+        public string Value { get; }
+
+        public static ITry<EncryptionKey, Error> Create(string value)
         {
-            return IsValid(value, Limitation);
+            return StringValidations.NonEmptyNorWhitespace(value).FlatMap(v =>
+            {
+                var validEncryptionKey = StringValidations.RegexMatch(value, new Regex("^[0-9A-Za-z]{16}$"));
+                return validEncryptionKey.Map(k => new EncryptionKey(k));
+            });
         }
     }
 }

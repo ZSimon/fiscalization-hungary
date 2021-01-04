@@ -4,7 +4,7 @@ namespace Mews.Fiscalization.Hungary.Models
 {
     public sealed class SupplierInfo : Info
     {
-        public SupplierInfo(TaxPayerId taxpayerId, Name name, SimpleAddress address, VatCode vatCode)
+        public SupplierInfo(TaxpayerIdentificationNumber taxpayerId, Name name, SimpleAddress address, VatCode vatCode)
             : base(taxpayerId, name, address)
         {
             VatCode = Check.IsNotNull(vatCode, nameof(vatCode));

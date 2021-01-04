@@ -14,7 +14,7 @@ namespace Mews.Fiscalization.Hungary.Models
             SupplierInfo supplierInfo,
             CustomerInfo customerInfo,
             CurrencyCode currencyCode,
-            ISequentialEnumerable<InvoiceItem> items,
+            ISequence<InvoiceItem> items,
             bool isSelfBilling = false,
             bool isCashAccounting = false)
         {
@@ -25,7 +25,7 @@ namespace Mews.Fiscalization.Hungary.Models
             CustomerInfo = customerInfo;
             CurrencyCode = currencyCode;
             Items = items;
-            DeliveryDate = Items.Max(i => i.Value.ConsumptionDate);
+            DeliveryDate = Items.Values.Max(i => i.Value.ConsumptionDate);
             ExchangeRate = GetExchangeRate(items);
             TaxSummary = GetTaxSummary(items);
             IsSelfBilling = isSelfBilling;
@@ -52,31 +52,31 @@ namespace Mews.Fiscalization.Hungary.Models
 
         public List<TaxSummaryItem> TaxSummary { get; }
 
-        public ISequentialEnumerable<InvoiceItem> Items { get; }
+        public ISequence<InvoiceItem> Items { get; }
 
         public bool IsSelfBilling { get; }
 
         public bool IsCashAccounting { get; }
 
-        private ExchangeRate GetExchangeRate(ISequentialEnumerable<InvoiceItem> indexedItems)
+        private ExchangeRate GetExchangeRate(ISequence<InvoiceItem> indexedItems)
         {
-            var totalGrossHuf = indexedItems.Values.Sum(i => Math.Abs(i.TotalAmounts.AmountHUF.Gross.Value));
-            var totalGross = indexedItems.Values.Sum(i => Math.Abs(i.TotalAmounts.Amount.Gross.Value));
+            var totalGrossHuf = indexedItems.Values.Sum(i => Math.Abs(i.Value.TotalAmounts.AmountHUF.Gross.Value));
+            var totalGross = indexedItems.Values.Sum(i => Math.Abs(i.Value.TotalAmounts.Amount.Gross.Value));
             if (totalGross != 0)
             {
                 return ExchangeRate.Rounded(totalGrossHuf / totalGross);
             }
 
-            return new ExchangeRate(1);
+            return ExchangeRate.CreateUnsafe(1);
         }
 
-        private List<TaxSummaryItem> GetTaxSummary(ISequentialEnumerable<InvoiceItem> indexedItems)
+        private List<TaxSummaryItem> GetTaxSummary(ISequence<InvoiceItem> indexedItems)
         {
-            var itemsByTaxRate = indexedItems.Values.GroupBy(i => i.TotalAmounts.TaxRatePercentage);
+            var itemsByTaxRate = indexedItems.Values.GroupBy(i => i.Value.TotalAmounts.TaxRatePercentage);
             var taxSummaryItems = itemsByTaxRate.Select(g => new TaxSummaryItem(
                 taxRatePercentage: g.Key,
-                amount: Amount.Sum(g.Select(i => i.TotalAmounts.Amount)),
-                amountHUF: Amount.Sum(g.Select(i => i.TotalAmounts.AmountHUF))
+                amount: Amount.Sum(g.Select(i => i.Value.TotalAmounts.Amount)),
+                amountHUF: Amount.Sum(g.Select(i => i.Value.TotalAmounts.AmountHUF))
             ));
             return taxSummaryItems.AsList();
         }
@@ -84,7 +84,7 @@ namespace Mews.Fiscalization.Hungary.Models
         private static void CheckConsistency(Invoice invoice)
         {
             var nonDefaultCurrency = !invoice.CurrencyCode.Equals(TaxationInfo.DefaultCurrencyCode);
-            var hasRequiredTaxRates = nonDefaultCurrency.Implies(() => invoice.Items.All(i => i.Value.ExchangeRate != null));
+            var hasRequiredTaxRates = nonDefaultCurrency.Implies(() => invoice.Items.Values.All(i => i.Value.ExchangeRate != null));
             if (!hasRequiredTaxRates)
             {
                 throw new InvalidOperationException("Exchange rate needs to be specified for all items.");

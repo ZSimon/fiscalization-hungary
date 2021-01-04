@@ -21,7 +21,7 @@ namespace Mews.Fiscalization.Hungary
                 0.25m,
                 0.27m,
             };
-            DefaultCurrencyCode = new CurrencyCode("HUF");
+            DefaultCurrencyCode = CurrencyCode.CreateUnsafe("HUF");
         }
     }
 }

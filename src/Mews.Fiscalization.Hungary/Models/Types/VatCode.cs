@@ -1,19 +1,31 @@
-﻿using Mews.Fiscalization.Core.Model;
+﻿using FuncSharp;
+using Mews.Fiscalization.Core.Model;
+using System;
+using System.Text.RegularExpressions;
 
 namespace Mews.Fiscalization.Hungary.Models
 {
-    public sealed class VatCode : LimitedString
+    public sealed class VatCode
     {
-        private static readonly StringLimitation Limitation = new StringLimitation(pattern: "[1-5]{1}", allowEmptyOrWhiteSpace: false);
-
-        public VatCode(string value)
-            : base(value, Limitation)
+        private VatCode(string value)
         {
+            Value = value;
         }
 
-        public static bool IsValid(string value)
+        public string Value { get; }
+
+        public static ITry<VatCode, Error> Create(string value)
         {
-            return IsValid(value, Limitation);
+            return StringValidations.NonEmptyNorWhitespace(value).FlatMap(v =>
+            {
+                var validVatCode = StringValidations.RegexMatch(value, new Regex("[1-5]{1}"));
+                return validVatCode.Map(c => new VatCode(c));
+            });
+        }
+
+        public static VatCode CreateUnsafe(string value)
+        {
+            return Create(value).Get(error => new ArgumentException(error.Message));
         }
     }
 }

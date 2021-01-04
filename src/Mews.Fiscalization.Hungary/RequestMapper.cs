@@ -43,8 +43,8 @@ namespace Mews.Fiscalization.Hungary
 
         private static Dto.InvoiceType GetCommonInvoice(Invoice invoice, IEnumerable<Dto.LineType> lines, Dto.InvoiceReferenceType invoiceReference = null)
         {
-            var invoiceAmount = Amount.Sum(invoice.Items.Select(i => i.Value.TotalAmounts.Amount));
-            var invoiceAmountHUF = Amount.Sum(invoice.Items.Select(i => i.Value.TotalAmounts.AmountHUF));
+            var invoiceAmount = Amount.Sum(invoice.Items.Values.Select(i => i.Value.TotalAmounts.Amount));
+            var invoiceAmountHUF = Amount.Sum(invoice.Items.Values.Select(i => i.Value.TotalAmounts.AmountHUF));
             var supplierInfo = invoice.SupplierInfo;
             var customerInfo = invoice.CustomerInfo;
             return new Dto.InvoiceType
@@ -70,7 +70,7 @@ namespace Mews.Fiscalization.Hungary
                         supplierAddress = MapAddress(supplierInfo.Address),
                         supplierTaxNumber = new Dto.TaxNumberType
                         {
-                            taxpayerId = supplierInfo.TaxpayerId.Value,
+                            taxpayerId = supplierInfo.TaxpayerId.TaxpayerNumber,
                             vatCode = supplierInfo.VatCode.Value
                         }
                     },
@@ -80,7 +80,7 @@ namespace Mews.Fiscalization.Hungary
                         customerAddress = MapAddress(customerInfo.Address),
                         customerTaxNumber = new Dto.TaxNumberType
                         {
-                            taxpayerId = customerInfo.TaxpayerId.Value
+                            taxpayerId = customerInfo.TaxpayerId.TaxpayerNumber
                         }
                     },
                 },
@@ -138,7 +138,7 @@ namespace Mews.Fiscalization.Hungary
                 {
                     additionalAddressDetail = address.AddtionalAddressDetail.Value,
                     city = address.City.Value,
-                    countryCode = address.CountryCode.Value,
+                    countryCode = address.Country.Alpha2Code,
                     postalCode = address.PostalCode.Value,
                     region = address.Region?.Value
                 }
@@ -164,9 +164,9 @@ namespace Mews.Fiscalization.Hungary
             };
         }
 
-        private static IEnumerable<Dto.LineType> MapItems(ISequentialEnumerable<InvoiceItem> items, int? modificationIndexOffset = null)
+        private static IEnumerable<Dto.LineType> MapItems(ISequence<InvoiceItem> items, int? modificationIndexOffset = null)
         {
-            return items.Select(i => new Dto.LineType
+            return items.Values.Select(i => new Dto.LineType
             {
                 lineNumber = i.Index.ToString(),
                 lineDescription = i.Value.Description.Value,
@@ -190,7 +190,7 @@ namespace Mews.Fiscalization.Hungary
             });
         }
 
-        private static Dto.LineModificationReferenceType GetLineModificationReference(IIndexedItem<InvoiceItem> item, int modificationIndexOffset)
+        private static Dto.LineModificationReferenceType GetLineModificationReference(Indexed<InvoiceItem> item, int modificationIndexOffset)
         {
             return new Dto.LineModificationReferenceType
             {

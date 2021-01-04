@@ -32,7 +32,7 @@ namespace Mews.Fiscalization.Hungary.Models
             SupplierInfo supplierInfo,
             CustomerInfo customerInfo,
             CurrencyCode currencyCode,
-            ISequentialEnumerable<InvoiceItem> items,
+            ISequence<InvoiceItem> items,
             bool isSelfBilling = false,
             bool isCashAccounting = false,
             bool modifyWithoutMaster = false)
