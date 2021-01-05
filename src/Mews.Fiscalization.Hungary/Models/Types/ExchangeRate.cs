@@ -15,11 +15,6 @@ namespace Mews.Fiscalization.Hungary.Models
 
         public decimal Value { get; }
 
-        public static ExchangeRate Rounded(decimal value)
-        {
-            return CreateUnsafe(Decimal.Round(value, MaxDecimalPlaces));
-        }
-
         public static ITry<ExchangeRate, Error> Create(decimal value)
         {
             return DecimalValidations.InRange(value, 0, 100_000_000, minIsAllowed: false, maxIsAllowed: false).FlatMap(v =>
@@ -29,9 +24,10 @@ namespace Mews.Fiscalization.Hungary.Models
             });
         }
 
-        internal static ExchangeRate CreateUnsafe(decimal value)
+        internal static ExchangeRate Rounded(decimal value)
         {
-            return Create(value).Get(error => new ArgumentException(error.Message));
+            var roundedValue = Decimal.Round(value, MaxDecimalPlaces);
+            return Create(roundedValue).Get(error => new ArgumentException(error.Message));
         }
     }
 }

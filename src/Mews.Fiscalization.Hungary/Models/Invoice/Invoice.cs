@@ -67,7 +67,7 @@ namespace Mews.Fiscalization.Hungary.Models
                 return ExchangeRate.Rounded(totalGrossHuf / totalGross);
             }
 
-            return ExchangeRate.CreateUnsafe(1);
+            return ExchangeRate.Create(1).Success.Get();
         }
 
         private List<TaxSummaryItem> GetTaxSummary(ISequence<InvoiceItem> indexedItems)
