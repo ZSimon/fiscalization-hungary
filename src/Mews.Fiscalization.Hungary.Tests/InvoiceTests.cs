@@ -15,7 +15,7 @@ namespace Mews.Fiscalization.Hungary.Tests
         {
             var navClient = TestFixture.GetNavClient();
             var exchangeToken = await navClient.GetExchangeTokenAsync();
-            var invoiceTransactionId = await navClient.SendInvoicesAsync(exchangeToken.SuccessResult, SequentialEnumerable.FromPreordered(new[] { GetInvoice() }, startIndex: 1));
+            var invoiceTransactionId = await navClient.SendInvoicesAsync(exchangeToken.SuccessResult, Sequence.FromPreordered(new[] { GetInvoice() }, startIndex: 1).Get());
 
             Thread.Sleep(3000);
 
@@ -35,7 +35,7 @@ namespace Mews.Fiscalization.Hungary.Tests
             var exchangeToken = await navClient.GetExchangeTokenAsync();
             var response = await navClient.SendModificationDocumentsAsync(
                 token: exchangeToken.SuccessResult,
-                invoices: SequentialEnumerable.FromPreordered(new[] { GetModificationInvoice() }, startIndex: 1)
+                invoices: Sequence.FromPreordered(new[] { GetModificationInvoice() }, startIndex: 1).Get()
             );
 
             Thread.Sleep(3000);
@@ -55,32 +55,32 @@ namespace Mews.Fiscalization.Hungary.Tests
                 new InvoiceItem(
                     consumptionDate: new DateTime(2020, 06, 30),
                     totalAmounts: new ItemAmounts(item1Amount, item1Amount, 0.05m),
-                    description: new Description("Httt hzi serts (fl)"),
+                    description: Description.Create("Httt hzi serts (fl)").Success.Get(),
                     measurementUnit: MeasurementUnit.Night,
                     quantity: 15,
                     unitAmounts: unitAmount1,
-                    exchangeRate: new ExchangeRate(1)
+                    exchangeRate: ExchangeRate.Create(1).Success.Get()
                 ),
                 new InvoiceItem(
                     consumptionDate: new DateTime(2020, 06, 30),
                     totalAmounts: new ItemAmounts(item2Amount, item2Amount, 0.05m),
-                    description: new Description("Httt hzi serts (fl)"),
+                    description: Description.Create("Httt hzi serts (fl)").Success.Get(),
                     measurementUnit: MeasurementUnit.Night,
                     quantity: -15,
                     unitAmounts: unitAmount1,
-                    exchangeRate: new ExchangeRate(1)
+                    exchangeRate: ExchangeRate.Create(1).Success.Get()
                 ),
             };
 
             var address = GetAddress();
             return new Invoice(
-                number: new InvoiceNumber("ABC-18a"),
+                number: InvoiceNumber.Create("ABC-18a").Success.Get(),
                 issueDate: new DateTime(2020, 06, 30),
                 supplierInfo: GetSupplierInfo(),
                 customerInfo: GetCustomerInfo(),
-                items: SequentialEnumerable.FromPreordered(items, startIndex: 1),
+                items: Sequence.FromPreordered(items, startIndex: 1).Get(),
                 paymentDate: new DateTime(2020, 06, 14),
-                currencyCode: new CurrencyCode("EUR")
+                currencyCode: CurrencyCode.Create("EUR").Success.Get()
             );
         }
 
@@ -91,11 +91,11 @@ namespace Mews.Fiscalization.Hungary.Tests
             var item = new InvoiceItem(
                 consumptionDate: new DateTime(2020, 08, 30),
                 totalAmounts: amounts,
-                description: new Description("NIGHT 8/30/2020"),
+                description: Description.Create("NIGHT 8/30/2020").Success.Get(),
                 measurementUnit: MeasurementUnit.Night,
                 quantity: -1,
                 unitAmounts: unitAmounts,
-                exchangeRate: new ExchangeRate(300)
+                exchangeRate: ExchangeRate.Create(300).Success.Get()
             );
 
             var amounts1 = GetItemAmounts(amount: 100, exchangeRate: 300);
@@ -103,33 +103,33 @@ namespace Mews.Fiscalization.Hungary.Tests
             var item1 = new InvoiceItem(
                 consumptionDate: new DateTime(2020, 08, 31),
                 totalAmounts: amounts1,
-                description: new Description("NIGHT2 8/31/2020"),
+                description: Description.Create("NIGHT2 8/31/2020").Success.Get(),
                 measurementUnit: MeasurementUnit.Night,
                 quantity: 1,
                 unitAmounts: unitAmounts1,
-                exchangeRate: new ExchangeRate(300)
+                exchangeRate: ExchangeRate.Create(300).Success.Get()
             );
 
             return new ModificationInvoice(
-                number: new InvoiceNumber("ABC-18abfcefsaa"),
+                number: InvoiceNumber.Create("ABC-18abfcefsaa").Success.Get(),
                 supplierInfo: GetSupplierInfo(),
                 customerInfo: GetCustomerInfo(),
-                items: SequentialEnumerable.FromPreordered(new[] { item, item1 }, startIndex: 1),
-                currencyCode: new CurrencyCode("USD"),
+                items: Sequence.FromPreordered(new[] { item, item1 }, startIndex: 1).Get(),
+                currencyCode: CurrencyCode.Create("USD").Success.Get(),
                 issueDate: new DateTime(2020, 08, 31),
                 paymentDate: new DateTime(2020, 08, 31),
                 itemIndexOffset: 4,
                 modificationIndex: 4,
                 modifyWithoutMaster: true,
-                originalDocumentNumber: new InvoiceNumber("ABC-18afasadafa")
+                originalDocumentNumber: InvoiceNumber.Create("ABC-18afasadafa").Success.Get()
             );
         }
 
         private CustomerInfo GetCustomerInfo()
         {
             return new CustomerInfo(
-                taxpayerId: new TaxPayerId("14750636"),
-                name: new Name("Vev Kft"),
+                taxpayerId: TaxpayerIdentificationNumber.Create(Countries.GetByCode("HU").Get(), "14750636").Success.Get(),
+                name: Name.Create("Vev Kft").Success.Get(),
                 address: GetAddress()
             );
         }
@@ -137,9 +137,9 @@ namespace Mews.Fiscalization.Hungary.Tests
         private SupplierInfo GetSupplierInfo()
         {
             return new SupplierInfo(
-                taxpayerId: new TaxPayerId("14750636"),
-                vatCode: new VatCode("2"),
-                name: new Name("BUDAPESTI MSZAKI S GAZDASGTUDOMNYI EGYETEM"),
+                taxpayerId: TaxpayerIdentificationNumber.Create(Countries.GetByCode("HU").Get(), "14750636").Success.Get(),
+                vatCode: VatCode.Create("2").Success.Get(),
+                name: Name.Create("BUDAPESTI MSZAKI S GAZDASGTUDOMNYI EGYETEM").Success.Get(),
                 address: GetAddress()
             );
         }
@@ -147,10 +147,10 @@ namespace Mews.Fiscalization.Hungary.Tests
         private SimpleAddress GetAddress()
         {
             return new SimpleAddress(
-                new City("Budapest"),
-                new CountryCode("HU"),
-                new AdditionalAddressDetail("Test"),
-                new PostalCode("1111")
+                city: City.Create("Budapest").Success.Get(),
+                country: Countries.GetByCode("HU").Get(),
+                additionalAddressDetail: AdditionalAddressDetail.Create("Test").Success.Get(),
+                postalCode: PostalCode.Create("1111").Success.Get()
             );
         }
 

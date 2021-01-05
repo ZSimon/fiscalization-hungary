@@ -28,19 +28,19 @@ namespace Mews.Fiscalization.Hungary
             return request;
         }
 
-        internal static Dto.ManageInvoiceRequest CreateManageInvoicesRequest(TechnicalUser user, SoftwareIdentification software, ExchangeToken token, ISequentialEnumerable<Invoice> invoices)
+        internal static Dto.ManageInvoiceRequest CreateManageInvoicesRequest(TechnicalUser user, SoftwareIdentification software, ExchangeToken token, ISequence<Invoice> invoices)
         {
             return CreateManageInvoicesRequest(user, software, token, Dto.ManageInvoiceOperationType.CREATE, invoices, i => RequestMapper.MapInvoice(i));
         }
 
-        internal static Dto.ManageInvoiceRequest CreateManageInvoicesRequest(TechnicalUser user, SoftwareIdentification software, ExchangeToken token, ISequentialEnumerable<ModificationInvoice> invoices)
+        internal static Dto.ManageInvoiceRequest CreateManageInvoicesRequest(TechnicalUser user, SoftwareIdentification software, ExchangeToken token, ISequence<ModificationInvoice> invoices)
         {
             return CreateManageInvoicesRequest(user, software, token, Dto.ManageInvoiceOperationType.MODIFY, invoices, d => RequestMapper.MapModificationInvoice(d));
         }
 
-        private static Dto.ManageInvoiceRequest CreateManageInvoicesRequest<T>(TechnicalUser user, SoftwareIdentification software, ExchangeToken token, Dto.ManageInvoiceOperationType operation, ISequentialEnumerable<T> invoices, Func<T, Dto.InvoiceData> mapper)
+        private static Dto.ManageInvoiceRequest CreateManageInvoicesRequest<T>(TechnicalUser user, SoftwareIdentification software, ExchangeToken token, Dto.ManageInvoiceOperationType operation, ISequence<T> invoices, Func<T, Dto.InvoiceData> mapper)
         {
-            var operations = invoices.Select(item => new Dto.InvoiceOperationType
+            var operations = invoices.Values.Select(item => new Dto.InvoiceOperationType
             {
                 index = item.Index,
                 invoiceData = Encoding.UTF8.GetBytes(XmlManipulator.Serialize(mapper(item.Value))),
@@ -78,7 +78,7 @@ namespace Mews.Fiscalization.Hungary
                 {
                     login = user.Login.Value,
                     passwordHash = user.PasswordHash,
-                    taxNumber = user.TaxId.Value,
+                    taxNumber = user.TaxId.TaxpayerNumber,
                     requestSignature = GetRequestSignature(user, requestId, timestamp, additionalSignatureData)
                 },
                 software = new Dto.SoftwareType

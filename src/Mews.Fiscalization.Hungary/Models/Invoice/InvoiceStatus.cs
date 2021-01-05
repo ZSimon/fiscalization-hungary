@@ -16,9 +16,9 @@ namespace Mews.Fiscalization.Hungary.Models
 
         public IEnumerable<InvoiceValidationResult> ValidationResults { get; }
 
-        internal static IndexedItem<InvoiceStatus> Map(Dto.ProcessingResultType result)
+        internal static Indexed<InvoiceStatus> Map(Dto.ProcessingResultType result)
         {
-            return new IndexedItem<InvoiceStatus>(
+            return new Indexed<InvoiceStatus>(
                 index: result.index,
                 value: new InvoiceStatus(
                     status: (InvoiceState)result.invoiceStatus,

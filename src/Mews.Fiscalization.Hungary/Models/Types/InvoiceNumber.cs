@@ -1,19 +1,25 @@
-﻿using Mews.Fiscalization.Core.Model;
+﻿using FuncSharp;
+using Mews.Fiscalization.Core.Model;
+using System.Text.RegularExpressions;
 
 namespace Mews.Fiscalization.Hungary.Models
 {
-    public sealed class InvoiceNumber : LimitedString
+    public sealed class InvoiceNumber
     {
-        private static readonly StringLimitation Limitation = new StringLimitation(maxLength: 50, pattern: ".*[^\\s].*", allowEmptyOrWhiteSpace: false);
-
-        public InvoiceNumber(string value)
-            : base(value, Limitation)
+        private InvoiceNumber(string value)
         {
+            Value = value;
         }
 
-        public static bool IsValid(string value)
+        public string Value { get; }
+
+        public static ITry<InvoiceNumber, Error> Create(string value)
         {
-            return IsValid(value, Limitation);
+            return StringValidations.LengthInRange(value, 1, 50).FlatMap(v =>
+            {
+                var validInvoiceNumber = StringValidations.RegexMatch(v, new Regex(".*[^\\s]."));
+                return validInvoiceNumber.Map(n => new InvoiceNumber(n));
+            });
         }
     }
 }

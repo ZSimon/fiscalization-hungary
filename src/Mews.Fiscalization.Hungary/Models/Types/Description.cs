@@ -1,19 +1,25 @@
-﻿using Mews.Fiscalization.Core.Model;
+﻿using FuncSharp;
+using Mews.Fiscalization.Core.Model;
+using System.Text.RegularExpressions;
 
 namespace Mews.Fiscalization.Hungary.Models
 {
-    public sealed class Description : LimitedString
+    public sealed class Description
     {
-        private static readonly StringLimitation Limitation = new StringLimitation(maxLength: 512, pattern: ".*[^\\s].*", allowEmptyOrWhiteSpace: false);
-
-        public Description(string value)
-            : base(value, Limitation)
+        private Description(string value)
         {
+            Value = value;
         }
 
-        public static bool IsValid(string value)
+        public string Value { get; }
+
+        public static ITry<Description, Error> Create(string value)
         {
-            return IsValid(value, Limitation);
+            return StringValidations.LengthInRange(value, 1, 512).FlatMap(v =>
+            {
+                var validDescription = StringValidations.RegexMatch(v, new Regex(".*[^\\s]."));
+                return validDescription.Map(d => new Description(d));
+            });
         }
     }
 }

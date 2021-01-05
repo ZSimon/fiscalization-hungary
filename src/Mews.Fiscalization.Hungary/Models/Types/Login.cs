@@ -1,19 +1,25 @@
-﻿using Mews.Fiscalization.Core.Model;
+﻿using FuncSharp;
+using Mews.Fiscalization.Core.Model;
+using System.Text.RegularExpressions;
 
 namespace Mews.Fiscalization.Hungary.Models
 {
-    public sealed class Login : LimitedString
+    public sealed class Login
     {
-        private static readonly StringLimitation Limitation = new StringLimitation(maxLength: 15, pattern: "^[0-9A-Za-z]{15}$", allowEmptyOrWhiteSpace: false);
-
-        public Login(string value)
-            : base(value, Limitation)
+        private Login(string value)
         {
+            Value = value;
         }
 
-        public static bool IsValid(string value)
+        public string Value { get; }
+
+        public static ITry<Login, Error> Create(string value)
         {
-            return IsValid(value, Limitation);
+            return StringValidations.LengthInRange(value, 1, 15).FlatMap(v =>
+            {
+                var validLogin = StringValidations.RegexMatch(v, new Regex("^[0-9A-Za-z]{15}$"));
+                return validLogin.Map(l => new Login(l));
+            });
         }
     }
 }

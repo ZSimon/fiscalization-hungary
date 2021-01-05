@@ -2,7 +2,6 @@
 using Mews.Fiscalization.Hungary.Models;
 using Mews.Fiscalization.Hungary.Utils;
 using System;
-using System.Collections.Generic;
 using System.Linq;
 using System.Net.Http;
 using System.Threading.Tasks;
@@ -56,9 +55,9 @@ namespace Mews.Fiscalization.Hungary
             ).ConfigureAwait(continueOnCapturedContext: false);
         }
 
-        public async Task<ResponseResult<TaxPayerData, TaxPayerErrorCode>> GetTaxPayerDataAsync(TaxPayerId taxId)
+        public async Task<ResponseResult<TaxPayerData, TaxPayerErrorCode>> GetTaxPayerDataAsync(TaxpayerIdentificationNumber taxId)
         {
-            var request = RequestCreator.CreateQueryTaxpayerRequest(TechnicalUser, SoftwareIdentification, taxId.Value);
+            var request = RequestCreator.CreateQueryTaxpayerRequest(TechnicalUser, SoftwareIdentification, taxId.TaxpayerNumber);
             return await Client.ProcessRequestAsync<Dto.QueryTaxpayerRequest, Dto.QueryTaxpayerResponse, TaxPayerData, TaxPayerErrorCode>(
                 endpoint: "queryTaxpayer",
                 request: request,
@@ -66,21 +65,21 @@ namespace Mews.Fiscalization.Hungary
             ).ConfigureAwait(continueOnCapturedContext: false);
         }
 
-        public async Task<ResponseResult<string, ResultErrorCode>> SendInvoicesAsync(ExchangeToken token, ISequentialEnumerable<Invoice> invoices)
+        public async Task<ResponseResult<string, ResultErrorCode>> SendInvoicesAsync(ExchangeToken token, ISequence<Invoice> invoices)
         {
             var request = RequestCreator.CreateManageInvoicesRequest(TechnicalUser, SoftwareIdentification, token, invoices);
             return await ManageInvoicesAsync(request, invoices);
         }
 
-        public async Task<ResponseResult<string, ResultErrorCode>> SendModificationDocumentsAsync(ExchangeToken token, ISequentialEnumerable<ModificationInvoice> invoices)
+        public async Task<ResponseResult<string, ResultErrorCode>> SendModificationDocumentsAsync(ExchangeToken token, ISequence<ModificationInvoice> invoices)
         {
             var request = RequestCreator.CreateManageInvoicesRequest(TechnicalUser, SoftwareIdentification, token, invoices);
             return await ManageInvoicesAsync(request, invoices);
         }
 
-        private async Task<ResponseResult<string, ResultErrorCode>> ManageInvoicesAsync<TDocument>(Dto.ManageInvoiceRequest request, ISequentialEnumerable<TDocument> invoices)
+        private async Task<ResponseResult<string, ResultErrorCode>> ManageInvoicesAsync<TDocument>(Dto.ManageInvoiceRequest request, ISequence<TDocument> invoices)
         {
-            if (invoices.Count > ServiceInfo.MaxInvoiceBatchSize)
+            if (invoices.Values.Count() > ServiceInfo.MaxInvoiceBatchSize)
             {
                 throw new ArgumentException($"Max invoice batch size ({ServiceInfo.MaxInvoiceBatchSize}) exceeded.", nameof(invoices));
             }

@@ -21,11 +21,11 @@ namespace Mews.Fiscalization.Hungary.Models
             IEnumerable<Dto.TechnicalValidationResultType> technicalValidations)
         {
             return Enumerable.Concat(
-                businessValidations.Defined().Select(v => new InvoiceValidationResult(
+                businessValidations.OrEmptyIfNull().Select(v => new InvoiceValidationResult(
                     message: v.message,
                     resultCode: (ValidationResultCode)v.validationResultCode
                 )),
-                technicalValidations.Defined().Select(v => new InvoiceValidationResult(
+                technicalValidations.OrEmptyIfNull().Select(v => new InvoiceValidationResult(
                     message: v.message,
                     resultCode: (ValidationResultCode)v.validationResultCode
                 ))
