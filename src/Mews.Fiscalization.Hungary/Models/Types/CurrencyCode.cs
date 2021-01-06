@@ -24,7 +24,7 @@ namespace Mews.Fiscalization.Hungary.Models
             return base.GetHashCode();
         }
 
-        public static ITry<CurrencyCode, Error> Create(string value)
+        public static ITry<CurrencyCode, INonEmptyEnumerable<Error>> Create(string value)
         {
             return StringValidations.NonEmptyNorWhitespace(value).FlatMap(v =>
             {
