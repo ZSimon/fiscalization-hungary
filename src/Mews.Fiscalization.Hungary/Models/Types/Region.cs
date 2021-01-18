@@ -1,6 +1,5 @@
 ﻿using FuncSharp;
 using Mews.Fiscalization.Core.Model;
-using System.Text.RegularExpressions;
 
 namespace Mews.Fiscalization.Hungary.Models
 {
@@ -15,11 +14,7 @@ namespace Mews.Fiscalization.Hungary.Models
 
         public static ITry<Region, INonEmptyEnumerable<Error>> Create(string value)
         {
-            return StringValidations.LengthInRange(value, 0, 50).FlatMap(v =>
-            {
-                var validRegion = StringValidations.RegexMatch(v, new Regex(".*[^\\s]."));
-                return validRegion.Map(r => new Region(r));
-            });
+            return ValidationExtensions.ValidateString(value, minLength: 0, maxLength: 50, regex: ".*[^\\s].*").Map(v => new Region(v));
         }
     }
 }
