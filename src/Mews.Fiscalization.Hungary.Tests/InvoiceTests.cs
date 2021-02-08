@@ -15,7 +15,8 @@ namespace Mews.Fiscalization.Hungary.Tests
         {
             var navClient = TestFixture.GetNavClient();
             var exchangeToken = await navClient.GetExchangeTokenAsync();
-            var invoiceTransactionId = await navClient.SendInvoicesAsync(exchangeToken.SuccessResult, Sequence.FromPreordered(new[] { GetInvoice() }, startIndex: 1).Get());
+            var exchangeToken1 = new ExchangeToken(System.Text.Encoding.ASCII.GetBytes("123"), DateTime.Now, DateTime.Now.AddMinutes(30));
+            var invoiceTransactionId = await navClient.SendInvoicesAsync(exchangeToken1, Sequence.FromPreordered(new[] { GetInvoice() }, startIndex: 1).Get());
 
             Thread.Sleep(3000);
 
