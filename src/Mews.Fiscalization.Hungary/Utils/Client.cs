@@ -15,7 +15,6 @@ namespace Mews.Fiscalization.Hungary.Utils
         {
             HttpClient = httpClient;
             Environment = environment;
-            System.Net.ServicePointManager.SecurityProtocol = System.Net.SecurityProtocolType.Tls12;
         }
 
         internal async Task<ResponseResult<TResult, TCode>> ProcessRequestAsync<TRequest, TDto, TResult, TCode>(string endpoint, TRequest request, Func<TDto, ResponseResult<TResult, TCode>> successFunc)
